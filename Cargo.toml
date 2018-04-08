@@ -1,0 +1,10 @@
+[package]
+name = "gameboy"
+version = "0.1.0"
+authors = ["Carl Ekerot <kalle@recordedfuture.com>"]
+
+[dependencies]
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+bitflags = "1.0"
