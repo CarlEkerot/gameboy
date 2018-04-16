@@ -7,30 +7,21 @@ pub struct LoadIncrease;
 
 impl Execute for LoadIncrease {
     fn execute(instruction: &Instruction, cpu: &mut CPU) -> Result<()> {
-        let dst = instruction.definition.operands.get(0)
-            .chain_err(|| "Missing destination operand")?;
-        let src = instruction.definition.operands.get(1)
-            .chain_err(|| "Missing source operand")?;
-
+        let dst = instruction.get_operand(0)?;
+        let src = instruction.get_operand(1)?;
 
         match (dst, src) {
             (&Operand::RegisterPairAddr(h, l), &Operand::Register(r)) => {
-                let mut addr = ((cpu.reg[h] as usize) << 8) | (cpu.reg[l] as usize);
+                let mut addr = cpu.read_reg_addr(h, l);
                 cpu.ram.store(addr, cpu.reg[r]);
-
-                // Increase
                 addr += 1;
-                cpu.reg[h] = (addr >> 8) as u8;
-                cpu.reg[l] = (addr & 0xff) as u8;
+                cpu.store_reg_short(h, l, addr as u16);
             },
             (&Operand::Register(r), &Operand::RegisterPairAddr(h, l)) => {
-                let mut addr = ((cpu.reg[h] as usize) << 8) | (cpu.reg[l] as usize);
+                let mut addr = cpu.read_reg_addr(h, l);
                 cpu.reg[r] = cpu.ram.load(addr);
-
-                // Increase
                 addr += 1;
-                cpu.reg[h] = (addr >> 8) as u8;
-                cpu.reg[l] = (addr & 0xff) as u8;
+                cpu.store_reg_short(h, l, addr as u16);
             },
             _ => {
                 println!("UNEXPECTED OPERANDS IN LDI");

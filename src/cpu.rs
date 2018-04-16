@@ -3,7 +3,7 @@ use memory::Memory;
 use instructions::{Instruction, Mnemonic};
 use errors::*;
 use constants::*;
-use operations::{Execute, Increase, Load, LoadIncrease, LoadDecrease};
+use operations::*;
 
 // Allow dead code for now...
 #[allow(dead_code)]
@@ -32,12 +32,34 @@ impl CPU {
         // NOTE: When other cycle count?
         self.cycles += instruction.definition.cycles[0];
         match instruction.definition.mnemonic {
+            Mnemonic::ADD => Add::execute(instruction, self),
             Mnemonic::LD => Load::execute(instruction, self),
             Mnemonic::LDI => LoadIncrease::execute(instruction, self),
             Mnemonic::LDD => LoadDecrease::execute(instruction, self),
             Mnemonic::INC => Increase::execute(instruction, self),
+            Mnemonic::DEC => Decrease::execute(instruction, self),
+            Mnemonic::NOP => Nop::execute(instruction, self),
+            Mnemonic::RLA => RotateALeft::execute(instruction, self),
+            Mnemonic::RLCA => RotateALeftCarry::execute(instruction, self),
             _ => Ok(())
         }
+    }
+
+    pub fn read_reg_addr(&self, h: usize, l: usize) -> usize {
+        ((self.reg[h] as usize) << 8) | (self.reg[l] as usize)
+    }
+
+    pub fn read_reg_short(&self, h: usize, l: usize) -> u16 {
+        ((self.reg[h] as u16) << 8) | (self.reg[l] as u16)
+    }
+
+    pub fn store_reg_short(&mut self, h: usize, l: usize, val: u16) {
+        self.reg[h] = (val >> 8) as u8;
+        self.reg[l] = (val & 0xff) as u8;
+    }
+
+    pub fn flag_is_set(&self, flag: u8) -> bool {
+        self.flag & flag != 0
     }
 
     pub fn set_flag(&mut self, flag: u8) {

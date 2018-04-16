@@ -1,4 +1,5 @@
 use std::fmt;
+use errors::*;
 
 pub type OpCode = u16;
 
@@ -158,6 +159,32 @@ pub struct Instruction<'a> {
     pub addr: u16,
     pub definition: &'a Definition,
     pub immediate: Option<u16>,
+}
+
+impl<'a> Instruction<'a> {
+    pub fn get_immediate_usize(&self) -> Result<usize> {
+        self.immediate.map(|i| i as usize).chain_err(|| "Missing immediate")
+    }
+
+    pub fn get_immediate_u8(&self) -> Result<u8> {
+        self.immediate.map(|i| i as u8).chain_err(|| "Missing immediate")
+    }
+
+    pub fn get_immediate_u16(&self) -> Result<u16> {
+        self.immediate.chain_err(|| "Missing immediate")
+    }
+
+    pub fn get_immediate_i8(&self) -> Result<i8> {
+        self.immediate.map(|i| i as i8).chain_err(|| "Missing immediate")
+    }
+
+    pub fn get_immediate_i16(&self) -> Result<i16> {
+        self.immediate.map(|i| i as i16).chain_err(|| "Missing immediate")
+    }
+
+    pub fn get_operand(&self, index: usize) -> Result<&Operand> {
+        self.definition.operands.get(index).chain_err(|| "Missing operand")
+    }
 }
 
 impl<'a> fmt::Display for Instruction<'a> {
