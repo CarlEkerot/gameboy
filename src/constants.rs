@@ -13,3 +13,8 @@ pub const BYTE: usize = 8;
 pub const SHORT: usize = 16;
 
 pub const OFFSET_BASE: usize = 0xff00;
+
+pub const FLAG_Z: u8 = 0b1000_0000;
+pub const FLAG_N: u8 = 0b0100_0000;
+pub const FLAG_H: u8 = 0b0010_0000;
+pub const FLAG_C: u8 = 0b0001_0000;

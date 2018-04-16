@@ -14,3 +14,4 @@ pub mod cpu;
 pub mod disasm;
 pub mod instructions;
 pub mod instruction_set;
+pub mod operations;
