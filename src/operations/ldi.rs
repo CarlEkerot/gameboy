@@ -14,7 +14,7 @@ impl Execute for LoadIncrease {
 
 
         match (dst, src) {
-            (&Operand::RegisterPair(h, l), &Operand::Register(r)) => {
+            (&Operand::RegisterPairAddr(h, l), &Operand::Register(r)) => {
                 let mut addr = ((cpu.reg[h] as usize) << 8) | (cpu.reg[l] as usize);
                 cpu.ram.store(addr, cpu.reg[r]);
 
@@ -23,7 +23,7 @@ impl Execute for LoadIncrease {
                 cpu.reg[h] = (addr >> 8) as u8;
                 cpu.reg[l] = (addr & 0xff) as u8;
             },
-            (&Operand::Register(r), &Operand::RegisterPair(h, l)) => {
+            (&Operand::Register(r), &Operand::RegisterPairAddr(h, l)) => {
                 let mut addr = ((cpu.reg[h] as usize) << 8) | (cpu.reg[l] as usize);
                 cpu.reg[r] = cpu.ram.load(addr);
 
@@ -37,5 +37,16 @@ impl Execute for LoadIncrease {
             }
         };
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use test_helpers::execute_all;
+    use instructions::Mnemonic;
+
+    #[test]
+    fn execute_ldis() {
+        execute_all(Mnemonic::LDI);
     }
 }

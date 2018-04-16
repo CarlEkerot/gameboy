@@ -20,11 +20,23 @@ OPERANDS = {
     'E': 'Register(5)',
     'H': 'Register(6)',
     'L': 'Register(7)',
+    '(A)': 'RegisterAddr(0)',
+    '(F)': 'RegisterAddr(1)',
+    '(B)': 'RegisterAddr(2)',
+    '(C)': 'RegisterAddr(3)',
+    '(D)': 'RegisterAddr(4)',
+    '(E)': 'RegisterAddr(5)',
+    '(H)': 'RegisterAddr(6)',
+    '(L)': 'RegisterAddr(7)',
     'SP': 'SP',
     'BC': 'RegisterPair(2, 3)',
     'DE': 'RegisterPair(4, 5)',
     'HL': 'RegisterPair(6, 7)',
     'AF': 'RegisterPair(1, 2)',
+    '(BC)': 'RegisterPairAddr(2, 3)',
+    '(DE)': 'RegisterPairAddr(4, 5)',
+    '(HL)': 'RegisterPairAddr(6, 7)',
+    '(AF)': 'RegisterPairAddr(1, 2)',
     'Z': 'Zero',
     'NZ': 'NonZero',
     'Ca': 'Carry',
@@ -33,9 +45,10 @@ OPERANDS = {
     'd16': 'Immediate(16)',
     'a8': 'Address(8)',
     'a16': 'Address(16)',
+    '(a8)': 'Address(8)',
+    '(a16)': 'Address(16)',
     'r8': 'Offset(8)',
     'SP+r8': 'SPOffset(8)',
-    'COff': 'COffset(8)',
     '00H': 'RSTOffset(0x00)',
     '08H': 'RSTOffset(0x08)',
     '10H': 'RSTOffset(0x10)',
@@ -83,19 +96,14 @@ class Instruction(object):
         self.flags = flags
         self.operands = operands
 
-        self._strip_parentheses()
         self._fix_mnemonic()
         self._translate_flags()
         self._translate_operands()
 
-    def _strip_parentheses(self):
-        self.operands = [o.replace('(C)', 'COff').replace('(', '').replace(')', '')
-                         for o in self.operands]
-
     def _fix_mnemonic(self):
-        if 'HL-' in self.operands and self.mnemonic == 'LD':
+        if '(HL-)' in self.operands and self.mnemonic == 'LD':
             self.mnemonic = 'LDD'
-        if 'HL+' in self.operands and self.mnemonic == 'LD':
+        if '(HL+)' in self.operands and self.mnemonic == 'LD':
             self.mnemonic = 'LDI'
         self.operands = [o.replace('HL+', 'HL').replace('HL-', 'HL')
                          for o in self.operands]

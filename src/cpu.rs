@@ -3,7 +3,7 @@ use memory::Memory;
 use instructions::{Instruction, Mnemonic};
 use errors::*;
 use constants::*;
-use operations::{Execute, Load, LoadIncrease, LoadDecrease};
+use operations::{Execute, Increase, Load, LoadIncrease, LoadDecrease};
 
 // Allow dead code for now...
 #[allow(dead_code)]
@@ -35,6 +35,7 @@ impl CPU {
             Mnemonic::LD => Load::execute(instruction, self),
             Mnemonic::LDI => LoadIncrease::execute(instruction, self),
             Mnemonic::LDD => LoadDecrease::execute(instruction, self),
+            Mnemonic::INC => Increase::execute(instruction, self),
             _ => Ok(())
         }
     }
@@ -69,39 +70,5 @@ impl CPU {
         } else {
             self.clear_flag(FLAG_H);
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use instruction_set::INSTRUCTIONS;
-    use instructions::Instruction;
-    use instructions::OpCode;
-
-    fn mock_instruction(code: &OpCode) -> Instruction {
-        Instruction {
-            addr: 0,
-            definition: INSTRUCTIONS.get(code).unwrap(),
-            immediate: Some(5),
-        }
-    }
-
-    #[test]
-    fn execute_loads() {
-        let m = Memory::default();
-        let mut cpu = CPU::new(m);
-        let itr = INSTRUCTIONS.iter()
-            .filter(|&(_, d)| d.mnemonic == Mnemonic::LD);
-        for (code, _) in itr {
-            cpu.execute(&mock_instruction(&code)).expect("FAILURE");
-        }
-    }
-
-    #[test]
-    fn build_opreand() {
-        let u: u8 = 0x80;
-        let i: i8 = u as i8;
-        println!("{}", i);
     }
 }

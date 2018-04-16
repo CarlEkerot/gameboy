@@ -56,7 +56,9 @@ pub enum Mnemonic {
 #[derive(Debug, PartialEq)]
 pub enum Operand {
     Register(usize),
+    RegisterAddr(usize),
     RegisterPair(usize, usize),
+    RegisterPairAddr(usize, usize),
     SP,
     Zero,
     NonZero,
@@ -66,7 +68,6 @@ pub enum Operand {
     Address(usize),
     Offset(usize),
     SPOffset(usize),
-    COffset(usize),
     RSTOffset(usize),
     Bit(usize),
     None,

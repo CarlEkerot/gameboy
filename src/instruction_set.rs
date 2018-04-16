@@ -31,7 +31,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x2,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(2, 3), Operand::Register(0)],
+            operands: [Operand::RegisterPairAddr(2, 3), Operand::Register(0)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x3, Definition {
@@ -87,7 +87,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0xa,
             cycles: [8, 0],
-            operands: [Operand::Register(0), Operand::RegisterPair(2, 3)],
+            operands: [Operand::Register(0), Operand::RegisterPairAddr(2, 3)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xb, Definition {
@@ -143,7 +143,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x12,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(4, 5), Operand::Register(0)],
+            operands: [Operand::RegisterPairAddr(4, 5), Operand::Register(0)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x13, Definition {
@@ -199,7 +199,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x1a,
             cycles: [8, 0],
-            operands: [Operand::Register(0), Operand::RegisterPair(4, 5)],
+            operands: [Operand::Register(0), Operand::RegisterPairAddr(4, 5)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x1b, Definition {
@@ -255,7 +255,7 @@ lazy_static! {
             mnemonic: Mnemonic::LDI,
             code: 0x22,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Register(0)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Register(0)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x23, Definition {
@@ -311,7 +311,7 @@ lazy_static! {
             mnemonic: Mnemonic::LDI,
             code: 0x2a,
             cycles: [8, 0],
-            operands: [Operand::Register(0), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(0), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x2b, Definition {
@@ -367,7 +367,7 @@ lazy_static! {
             mnemonic: Mnemonic::LDD,
             code: 0x32,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Register(0)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Register(0)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x33, Definition {
@@ -381,21 +381,21 @@ lazy_static! {
             mnemonic: Mnemonic::INC,
             code: 0x34,
             cycles: [12, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Function, Flag::Unchanged],
         });
         map.insert(0x35, Definition {
             mnemonic: Mnemonic::DEC,
             code: 0x35,
             cycles: [12, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Set, Flag::Function, Flag::Unchanged],
         });
         map.insert(0x36, Definition {
             mnemonic: Mnemonic::LD,
             code: 0x36,
             cycles: [12, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Immediate(8)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Immediate(8)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x37, Definition {
@@ -423,7 +423,7 @@ lazy_static! {
             mnemonic: Mnemonic::LDD,
             code: 0x3a,
             cycles: [8, 0],
-            operands: [Operand::Register(0), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(0), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x3b, Definition {
@@ -507,7 +507,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x46,
             cycles: [8, 0],
-            operands: [Operand::Register(2), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(2), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x47, Definition {
@@ -563,7 +563,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x4e,
             cycles: [8, 0],
-            operands: [Operand::Register(3), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(3), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x4f, Definition {
@@ -619,7 +619,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x56,
             cycles: [8, 0],
-            operands: [Operand::Register(4), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(4), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x57, Definition {
@@ -675,7 +675,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x5e,
             cycles: [8, 0],
-            operands: [Operand::Register(5), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(5), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x5f, Definition {
@@ -731,7 +731,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x66,
             cycles: [8, 0],
-            operands: [Operand::Register(6), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(6), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x67, Definition {
@@ -787,7 +787,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x6e,
             cycles: [8, 0],
-            operands: [Operand::Register(7), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(7), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x6f, Definition {
@@ -801,42 +801,42 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x70,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Register(2)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Register(2)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x71, Definition {
             mnemonic: Mnemonic::LD,
             code: 0x71,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Register(3)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Register(3)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x72, Definition {
             mnemonic: Mnemonic::LD,
             code: 0x72,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Register(4)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Register(4)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x73, Definition {
             mnemonic: Mnemonic::LD,
             code: 0x73,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Register(5)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Register(5)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x74, Definition {
             mnemonic: Mnemonic::LD,
             code: 0x74,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Register(6)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Register(6)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x75, Definition {
             mnemonic: Mnemonic::LD,
             code: 0x75,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Register(7)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Register(7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x76, Definition {
@@ -850,7 +850,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x77,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::Register(0)],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::Register(0)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x78, Definition {
@@ -899,7 +899,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0x7e,
             cycles: [8, 0],
-            operands: [Operand::Register(0), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(0), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0x7f, Definition {
@@ -955,7 +955,7 @@ lazy_static! {
             mnemonic: Mnemonic::ADD,
             code: 0x86,
             cycles: [8, 0],
-            operands: [Operand::Register(0), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(0), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Function, Flag::Function],
         });
         map.insert(0x87, Definition {
@@ -1011,7 +1011,7 @@ lazy_static! {
             mnemonic: Mnemonic::ADC,
             code: 0x8e,
             cycles: [8, 0],
-            operands: [Operand::Register(0), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(0), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Function, Flag::Function],
         });
         map.insert(0x8f, Definition {
@@ -1067,7 +1067,7 @@ lazy_static! {
             mnemonic: Mnemonic::SUB,
             code: 0x96,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Set, Flag::Function, Flag::Function],
         });
         map.insert(0x97, Definition {
@@ -1123,7 +1123,7 @@ lazy_static! {
             mnemonic: Mnemonic::SBC,
             code: 0x9e,
             cycles: [8, 0],
-            operands: [Operand::Register(0), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Register(0), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Set, Flag::Function, Flag::Function],
         });
         map.insert(0x9f, Definition {
@@ -1179,7 +1179,7 @@ lazy_static! {
             mnemonic: Mnemonic::AND,
             code: 0xa6,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Set, Flag::Reset],
         });
         map.insert(0xa7, Definition {
@@ -1235,7 +1235,7 @@ lazy_static! {
             mnemonic: Mnemonic::XOR,
             code: 0xae,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Reset],
         });
         map.insert(0xaf, Definition {
@@ -1291,7 +1291,7 @@ lazy_static! {
             mnemonic: Mnemonic::OR,
             code: 0xb6,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Reset],
         });
         map.insert(0xb7, Definition {
@@ -1347,7 +1347,7 @@ lazy_static! {
             mnemonic: Mnemonic::CP,
             code: 0xbe,
             cycles: [8, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Set, Flag::Function, Flag::Function],
         });
         map.insert(0xbf, Definition {
@@ -1571,7 +1571,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0xe2,
             cycles: [8, 0],
-            operands: [Operand::COffset(8), Operand::Register(0)],
+            operands: [Operand::RegisterAddr(3), Operand::Register(0)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xe5, Definition {
@@ -1606,7 +1606,7 @@ lazy_static! {
             mnemonic: Mnemonic::JP,
             code: 0xe9,
             cycles: [4, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xea, Definition {
@@ -1648,7 +1648,7 @@ lazy_static! {
             mnemonic: Mnemonic::LD,
             code: 0xf2,
             cycles: [8, 0],
-            operands: [Operand::Register(0), Operand::COffset(8)],
+            operands: [Operand::Register(0), Operand::RegisterAddr(3)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xf3, Definition {
@@ -1767,7 +1767,7 @@ lazy_static! {
             mnemonic: Mnemonic::RLC,
             code: 0xcb06,
             cycles: [16, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Function],
         });
         map.insert(0xcb07, Definition {
@@ -1823,7 +1823,7 @@ lazy_static! {
             mnemonic: Mnemonic::RRC,
             code: 0xcb0e,
             cycles: [16, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Function],
         });
         map.insert(0xcb0f, Definition {
@@ -1879,7 +1879,7 @@ lazy_static! {
             mnemonic: Mnemonic::RL,
             code: 0xcb16,
             cycles: [16, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Function],
         });
         map.insert(0xcb17, Definition {
@@ -1935,7 +1935,7 @@ lazy_static! {
             mnemonic: Mnemonic::RR,
             code: 0xcb1e,
             cycles: [16, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Function],
         });
         map.insert(0xcb1f, Definition {
@@ -1991,7 +1991,7 @@ lazy_static! {
             mnemonic: Mnemonic::SLA,
             code: 0xcb26,
             cycles: [16, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Function],
         });
         map.insert(0xcb27, Definition {
@@ -2047,7 +2047,7 @@ lazy_static! {
             mnemonic: Mnemonic::SRA,
             code: 0xcb2e,
             cycles: [16, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Reset],
         });
         map.insert(0xcb2f, Definition {
@@ -2103,7 +2103,7 @@ lazy_static! {
             mnemonic: Mnemonic::SWAP,
             code: 0xcb36,
             cycles: [16, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Reset],
         });
         map.insert(0xcb37, Definition {
@@ -2159,7 +2159,7 @@ lazy_static! {
             mnemonic: Mnemonic::SRL,
             code: 0xcb3e,
             cycles: [16, 0],
-            operands: [Operand::RegisterPair(6, 7), Operand::None],
+            operands: [Operand::RegisterPairAddr(6, 7), Operand::None],
             flags: [Flag::Function, Flag::Reset, Flag::Reset, Flag::Function],
         });
         map.insert(0xcb3f, Definition {
@@ -2215,7 +2215,7 @@ lazy_static! {
             mnemonic: Mnemonic::BIT,
             code: 0xcb46,
             cycles: [16, 0],
-            operands: [Operand::Bit(0), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(0), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Set, Flag::Unchanged],
         });
         map.insert(0xcb47, Definition {
@@ -2271,7 +2271,7 @@ lazy_static! {
             mnemonic: Mnemonic::BIT,
             code: 0xcb4e,
             cycles: [16, 0],
-            operands: [Operand::Bit(1), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(1), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Set, Flag::Unchanged],
         });
         map.insert(0xcb4f, Definition {
@@ -2327,7 +2327,7 @@ lazy_static! {
             mnemonic: Mnemonic::BIT,
             code: 0xcb56,
             cycles: [16, 0],
-            operands: [Operand::Bit(2), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(2), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Set, Flag::Unchanged],
         });
         map.insert(0xcb57, Definition {
@@ -2383,7 +2383,7 @@ lazy_static! {
             mnemonic: Mnemonic::BIT,
             code: 0xcb5e,
             cycles: [16, 0],
-            operands: [Operand::Bit(3), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(3), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Set, Flag::Unchanged],
         });
         map.insert(0xcb5f, Definition {
@@ -2439,7 +2439,7 @@ lazy_static! {
             mnemonic: Mnemonic::BIT,
             code: 0xcb66,
             cycles: [16, 0],
-            operands: [Operand::Bit(4), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(4), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Set, Flag::Unchanged],
         });
         map.insert(0xcb67, Definition {
@@ -2495,7 +2495,7 @@ lazy_static! {
             mnemonic: Mnemonic::BIT,
             code: 0xcb6e,
             cycles: [16, 0],
-            operands: [Operand::Bit(5), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(5), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Set, Flag::Unchanged],
         });
         map.insert(0xcb6f, Definition {
@@ -2551,7 +2551,7 @@ lazy_static! {
             mnemonic: Mnemonic::BIT,
             code: 0xcb76,
             cycles: [16, 0],
-            operands: [Operand::Bit(6), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(6), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Set, Flag::Unchanged],
         });
         map.insert(0xcb77, Definition {
@@ -2607,7 +2607,7 @@ lazy_static! {
             mnemonic: Mnemonic::BIT,
             code: 0xcb7e,
             cycles: [16, 0],
-            operands: [Operand::Bit(7), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(7), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Function, Flag::Reset, Flag::Set, Flag::Unchanged],
         });
         map.insert(0xcb7f, Definition {
@@ -2663,7 +2663,7 @@ lazy_static! {
             mnemonic: Mnemonic::RES,
             code: 0xcb86,
             cycles: [16, 0],
-            operands: [Operand::Bit(0), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(0), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcb87, Definition {
@@ -2719,7 +2719,7 @@ lazy_static! {
             mnemonic: Mnemonic::RES,
             code: 0xcb8e,
             cycles: [16, 0],
-            operands: [Operand::Bit(1), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(1), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcb8f, Definition {
@@ -2775,7 +2775,7 @@ lazy_static! {
             mnemonic: Mnemonic::RES,
             code: 0xcb96,
             cycles: [16, 0],
-            operands: [Operand::Bit(2), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(2), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcb97, Definition {
@@ -2831,7 +2831,7 @@ lazy_static! {
             mnemonic: Mnemonic::RES,
             code: 0xcb9e,
             cycles: [16, 0],
-            operands: [Operand::Bit(3), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(3), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcb9f, Definition {
@@ -2887,7 +2887,7 @@ lazy_static! {
             mnemonic: Mnemonic::RES,
             code: 0xcba6,
             cycles: [16, 0],
-            operands: [Operand::Bit(4), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(4), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcba7, Definition {
@@ -2943,7 +2943,7 @@ lazy_static! {
             mnemonic: Mnemonic::RES,
             code: 0xcbae,
             cycles: [16, 0],
-            operands: [Operand::Bit(5), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(5), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbaf, Definition {
@@ -2999,7 +2999,7 @@ lazy_static! {
             mnemonic: Mnemonic::RES,
             code: 0xcbb6,
             cycles: [16, 0],
-            operands: [Operand::Bit(6), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(6), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbb7, Definition {
@@ -3055,7 +3055,7 @@ lazy_static! {
             mnemonic: Mnemonic::RES,
             code: 0xcbbe,
             cycles: [16, 0],
-            operands: [Operand::Bit(7), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(7), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbbf, Definition {
@@ -3111,7 +3111,7 @@ lazy_static! {
             mnemonic: Mnemonic::SET,
             code: 0xcbc6,
             cycles: [16, 0],
-            operands: [Operand::Bit(0), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(0), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbc7, Definition {
@@ -3167,7 +3167,7 @@ lazy_static! {
             mnemonic: Mnemonic::SET,
             code: 0xcbce,
             cycles: [16, 0],
-            operands: [Operand::Bit(1), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(1), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbcf, Definition {
@@ -3223,7 +3223,7 @@ lazy_static! {
             mnemonic: Mnemonic::SET,
             code: 0xcbd6,
             cycles: [16, 0],
-            operands: [Operand::Bit(2), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(2), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbd7, Definition {
@@ -3279,7 +3279,7 @@ lazy_static! {
             mnemonic: Mnemonic::SET,
             code: 0xcbde,
             cycles: [16, 0],
-            operands: [Operand::Bit(3), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(3), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbdf, Definition {
@@ -3335,7 +3335,7 @@ lazy_static! {
             mnemonic: Mnemonic::SET,
             code: 0xcbe6,
             cycles: [16, 0],
-            operands: [Operand::Bit(4), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(4), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbe7, Definition {
@@ -3391,7 +3391,7 @@ lazy_static! {
             mnemonic: Mnemonic::SET,
             code: 0xcbee,
             cycles: [16, 0],
-            operands: [Operand::Bit(5), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(5), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbef, Definition {
@@ -3447,7 +3447,7 @@ lazy_static! {
             mnemonic: Mnemonic::SET,
             code: 0xcbf6,
             cycles: [16, 0],
-            operands: [Operand::Bit(6), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(6), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbf7, Definition {
@@ -3503,7 +3503,7 @@ lazy_static! {
             mnemonic: Mnemonic::SET,
             code: 0xcbfe,
             cycles: [16, 0],
-            operands: [Operand::Bit(7), Operand::RegisterPair(6, 7)],
+            operands: [Operand::Bit(7), Operand::RegisterPairAddr(6, 7)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xcbff, Definition {
