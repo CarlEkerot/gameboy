@@ -15,11 +15,10 @@ impl Execute for Add {
             (&Operand::Register(r1), &Operand::Register(r2)) => {
                 let a = cpu.reg[r1];
                 let b = cpu.reg[r2];
-                cpu.reg[r1] = a + b;
+                let val = a + b;
+                cpu.reg[r1] = val;
 
-                if cpu.reg[r1] == 0 {
-                    cpu.set_flag(FLAG_Z);
-                }
+                cpu.flag_cond(FLAG_Z, val == 0);
                 cpu.clear_flag(FLAG_N);
                 cpu.set_half_carry(a as usize, b as usize);
                 cpu.set_carry(a as usize, b as usize);
@@ -28,11 +27,10 @@ impl Execute for Add {
                 let a = cpu.reg[r];
                 let addr = cpu.read_reg_addr(h, l);
                 let b = cpu.ram.load(addr);
-                cpu.reg[r] = a + b;
+                let val = a + b;
+                cpu.reg[r] = val;
 
-                if cpu.reg[r] == 0 {
-                    cpu.set_flag(FLAG_Z);
-                }
+                cpu.flag_cond(FLAG_Z, val == 0);
                 cpu.clear_flag(FLAG_N);
                 cpu.set_half_carry(a as usize, b as usize);
                 cpu.set_carry(a as usize, b as usize);
@@ -40,11 +38,10 @@ impl Execute for Add {
             (&Operand::Register(r), &Operand::Immediate(BYTE)) => {
                 let a = cpu.reg[r];
                 let b = instruction.get_immediate_u8()?;
-                cpu.reg[r] = a + b;
+                let val = a + b;
+                cpu.reg[r] = val;
 
-                if cpu.reg[r] == 0 {
-                    cpu.set_flag(FLAG_Z);
-                }
+                cpu.flag_cond(FLAG_Z, val == 0);
                 cpu.clear_flag(FLAG_N);
                 cpu.set_half_carry(a as usize, b as usize);
                 cpu.set_carry(a as usize, b as usize);
@@ -78,7 +75,7 @@ impl Execute for Add {
             },
             _ => {
                 // TODO: Add error here
-                println!("UNEXPECTED OPERANDS IN LD {} {}", dst, src);
+                println!("UNEXPECTED OPERANDS {} {}", dst, src);
             },
         };
         Ok(())

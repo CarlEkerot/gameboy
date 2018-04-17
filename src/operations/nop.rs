@@ -6,7 +6,7 @@ use operations::Execute;
 pub struct Nop;
 
 impl Execute for Nop {
-    fn execute(instruction: &Instruction, cpu: &mut CPU) -> Result<()> {
+    fn execute(_instruction: &Instruction, _cpu: &mut CPU) -> Result<()> {
         Ok(())
     }
 }

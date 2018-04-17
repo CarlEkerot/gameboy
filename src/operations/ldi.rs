@@ -24,7 +24,7 @@ impl Execute for LoadIncrease {
                 cpu.store_reg_short(h, l, addr as u16);
             },
             _ => {
-                println!("UNEXPECTED OPERANDS IN LDI");
+                println!("UNEXPECTED OPERANDS {} {}", src, dst);
             }
         };
         Ok(())

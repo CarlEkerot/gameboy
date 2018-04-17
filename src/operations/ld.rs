@@ -68,11 +68,6 @@ impl Execute for Load {
                 cpu.ram.store(addr, (cpu.sp & 0xff) as u8);
                 cpu.ram.store(addr + 1, (cpu.sp >> 8) as u8);
             },
-            (&Operand::Address(BYTE), &Operand::Register(r)) => {
-                let offset = instruction.get_immediate_usize()?;
-                let addr = OFFSET_BASE + offset;
-                cpu.ram.store(addr, cpu.reg[r]);
-            },
             (&Operand::Address(SHORT), &Operand::Register(r)) => {
                 // Stores two bytes in memory
                 let addr = instruction.get_immediate_usize()?;
@@ -86,7 +81,7 @@ impl Execute for Load {
             }
             _ => {
                 // TODO: Add error here
-                println!("UNEXPECTED OPERANDS IN LD {} {}", dst, src);
+                println!("UNEXPECTED OPERANDS {} {}", dst, src);
             },
         };
         Ok(())

@@ -4,20 +4,13 @@ use errors::*;
 use constants::*;
 use operations::Execute;
 
-pub struct RotateALeftCarry;
+pub struct SetCarryFlag;
 
-impl Execute for RotateALeftCarry {
+impl Execute for SetCarryFlag {
     fn execute(_instruction: &Instruction, cpu: &mut CPU) -> Result<()> {
-        let val = cpu.reg[REG_A];
-        let msb = val >> 7;
-        let res = ((val << 1) & 0xff) | msb;
-        cpu.reg[REG_A] = res;
-
-        cpu.flag_cond(FLAG_Z, res == 0);
         cpu.clear_flag(FLAG_N);
         cpu.clear_flag(FLAG_H);
-        cpu.flag_cond(FLAG_C, msb == 1);
-
+        cpu.set_flag(FLAG_C);
         Ok(())
     }
 }
@@ -28,7 +21,7 @@ mod tests {
     use instructions::Mnemonic;
 
     #[test]
-    fn execute_rlca() {
-        execute_all(Mnemonic::RLCA);
+    fn execute_scf() {
+        execute_all(Mnemonic::SCF);
     }
 }

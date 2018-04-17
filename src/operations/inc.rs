@@ -12,13 +12,11 @@ impl Execute for Increase {
 
         match *dst {
             Operand::Register(r) => {
-                let val = cpu.reg[r];
-                cpu.reg[r] += 1;
+                let val = cpu.reg[r] + 1;
+                cpu.reg[r] = val;
                 cpu.set_half_carry(val as usize, 1);
                 cpu.clear_flag(FLAG_N);
-                if cpu.reg[r] == 0 {
-                    cpu.set_flag(FLAG_Z);
-                }
+                cpu.flag_cond(FLAG_Z, val == 0)
             },
             Operand::RegisterPair(h, l) => {
                 let val = cpu.read_reg_short(h, l) + 1;

@@ -10,7 +10,6 @@ impl Execute for LoadDecrease {
         let dst = instruction.get_operand(0)?;
         let src = instruction.get_operand(1)?;
 
-
         match (dst, src) {
             (&Operand::RegisterPairAddr(h, l), &Operand::Register(r)) => {
                 let mut addr = cpu.read_reg_addr(h, l);
@@ -25,7 +24,7 @@ impl Execute for LoadDecrease {
                 cpu.store_reg_short(h, l, addr as u16);
             },
             _ => {
-                println!("UNEXPECTED OPERANDS IN LDD");
+                println!("UNEXPECTED OPERANDS {} {}", src, dst);
             }
         };
         Ok(())
