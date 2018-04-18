@@ -18,3 +18,9 @@ pub const FLAG_Z: u8 = 0b1000_0000;
 pub const FLAG_N: u8 = 0b0100_0000;
 pub const FLAG_H: u8 = 0b0010_0000;
 pub const FLAG_C: u8 = 0b0001_0000;
+
+pub const LCD_PIXELS_X: usize = 160;
+pub const LCD_PIXELS_Y: usize = 144;
+pub const LCD_BYTES_X: usize = 20;
+pub const LCD_BYTES_Y: usize = 18;
+pub const LCD_TITLE: &'static str = "Gameboy";

@@ -6,3 +6,8 @@ authors = ["Carl Ekerot <kalle@implode.se>"]
 [dependencies]
 lazy_static = "1.0"
 error-chain = "0.11.0"
+
+[dependencies.sdl2]
+version = "0.31"
+default-features = false
+features = ["gfx"]
