@@ -15,6 +15,8 @@ impl Execute for Jump {
             (&Operand::Address(SHORT), &Operand::None) => {
                 cpu.pc = instruction.get_immediate_u16()?;
             },
+            // TODO: Maybe not memory read?
+            // https://gekkio.fi/files/gb-docs/gbctr.pdf p. 7
             (&Operand::RegisterPairAddr(h, l), &Operand::None) => {
                 let a = cpu.read_reg_addr(h, l);
                 cpu.pc = a as u16;
