@@ -1,18 +1,20 @@
 // http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
 use memory::Memory;
-use instructions::{Instruction, Mnemonic};
+use instructions::Instruction;
+use definition::{Mnemonic, ImmediateType};
 use errors::*;
 use constants::*;
 use operations::*;
+use instruction_set::INSTRUCTIONS;
 
+#[derive(Debug)]
 pub enum CPUState {
     Running,
     Halted,
     Stopped,
 }
 
-// Allow dead code for now...
-#[allow(dead_code)]
+#[derive(Debug)]
 pub struct CPU {
     pub reg: [u8; 8],
     pub sp: u16,
@@ -118,7 +120,7 @@ impl CPU {
     }
 
     pub fn flag_cond(&mut self, flag: u8, cond: bool) {
-        if cond == true {
+        if cond {
             self.set_flag(flag);
         } else {
             self.clear_flag(flag);
@@ -170,5 +172,98 @@ impl CPU {
         let val = self.ram.load(self.sp as usize);
         self.sp += 1;
         val
+    }
+
+    fn next_instruction_byte(&mut self) -> u8 {
+        let b = self.ram.load(self.pc as usize);
+        self.pc += 1;
+        b
+    }
+
+    fn next_instruction(&mut self) -> Result<Instruction> {
+        let first = self.next_instruction_byte() as u16;
+        let opcode = match first {
+            0xcb => {
+                let second = self.next_instruction_byte() as u16;
+                first << 8 | second
+            },
+            _ => first,
+        };
+
+        let definition = INSTRUCTIONS.get(&opcode).chain_err(|| "Invalid opcode")?;
+
+        let immediate = definition.immediate_type().map(|i| match i {
+            ImmediateType::Byte => self.next_instruction_byte() as u16,
+            ImmediateType::Short => {
+                let lo = self.next_instruction_byte() as u16;
+                let hi = self.next_instruction_byte() as u16;
+                hi << 8 | lo
+            },
+        });
+
+        Ok(Instruction {
+            definition,
+            immediate
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use definition::Operand;
+    use memory::Memory;
+    use std::fs::File;
+
+    #[test]
+    fn test_parse() {
+        let mut mem = Memory::default();
+        mem.store(0x100, 0xaf);
+
+        let mut cpu = CPU::new(mem);
+        let instruction = cpu.next_instruction().unwrap();
+
+        assert_eq!(instruction.definition.mnemonic, Mnemonic::XOR);
+        assert_eq!(instruction.definition.operands[0], Operand::Register(REG_A));
+    }
+
+    #[test]
+    fn test_parse_with_immediate() {
+        let mut mem = Memory::default();
+        mem.store(0x100, 0x31);
+        mem.store(0x101, 0xfe);
+        mem.store(0x102, 0xff);
+
+        let mut cpu = CPU::new(mem);
+        let instruction = cpu.next_instruction().unwrap();
+
+        assert_eq!(instruction.definition.mnemonic, Mnemonic::LD);
+        assert_eq!(instruction.definition.operands[0], Operand::SP);
+        assert_eq!(instruction.definition.operands[1], Operand::Immediate(SHORT));
+        assert_eq!(instruction.immediate, Some(0xfffe));
+    }
+
+    #[test]
+    fn test_parse_rom() {
+        let mut mem = Memory::default();
+        let mut rom = File::open("/home/kalle/temp/boot.gb").unwrap();
+        let bytes_read = mem.load_rom(&mut rom).unwrap();
+        assert_eq!(bytes_read, 256);
+
+        let mut cpu = CPU::new(mem);
+        cpu.pc = 0;
+
+        let expected = [
+            "LD SP, $fffe",
+            "XOR A",
+            "LD HL, $9fff",
+            "LDD (HL), A",
+            "BIT 7, H"
+        ];
+
+        for &e in expected.iter() {
+            let instruction = cpu.next_instruction().unwrap();
+            assert_eq!(instruction.to_string(), e);
+        }
     }
 }

@@ -1,11 +1,11 @@
 use cpu::CPU;
 use memory::Memory;
-use instructions::{Instruction, Mnemonic, OpCode};
+use instructions::Instruction;
+use definition::{Mnemonic, OpCode};
 use instruction_set::INSTRUCTIONS;
 
 fn mock_instruction(code: &OpCode) -> Instruction {
     Instruction {
-        addr: 0x100,
         definition: INSTRUCTIONS.get(code).unwrap(),
         immediate: Some(5),
     }

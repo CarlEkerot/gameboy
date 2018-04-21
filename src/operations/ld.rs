@@ -1,5 +1,6 @@
 use cpu::CPU;
-use instructions::{Instruction, Operand};
+use instructions::Instruction;
+use definition::Operand;
 use errors::*;
 use constants::*;
 use operations::Execute;
@@ -36,7 +37,7 @@ impl Execute for Load {
             },
             (&Operand::RegisterPair(h, l), &Operand::SPOffset(BYTE)) => {
                 let offset = instruction.get_immediate_i16()?;
-                let sp = cpu.sp.clone();
+                let sp = cpu.sp;
                 let val = sp as i16 + offset;
 
                 cpu.store_reg_short(h, l, val as u16);
@@ -91,10 +92,10 @@ impl Execute for Load {
 #[cfg(test)]
 mod tests {
     use test_helpers::execute_all;
-    use instructions::Mnemonic;
+    use definition::Mnemonic;
 
     #[test]
-    fn execute_loads() {
+    fn execute_ld() {
         execute_all(Mnemonic::LD);
     }
 }

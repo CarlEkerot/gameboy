@@ -1,5 +1,6 @@
 use cpu::CPU;
-use instructions::{Instruction, Operand};
+use instructions::Instruction;
+use definition::Operand;
 use errors::*;
 use operations::Execute;
 
@@ -28,7 +29,7 @@ impl Execute for Push {
 #[cfg(test)]
 mod tests {
     use test_helpers::execute_all;
-    use instructions::Mnemonic;
+    use definition::Mnemonic;
 
     #[test]
     fn execute_push() {

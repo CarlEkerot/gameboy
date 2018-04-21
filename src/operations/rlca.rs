@@ -25,7 +25,7 @@ impl Execute for RotateALeftCarry {
 #[cfg(test)]
 mod tests {
     use test_helpers::execute_all;
-    use instructions::Mnemonic;
+    use definition::Mnemonic;
 
     #[test]
     fn execute_rlca() {

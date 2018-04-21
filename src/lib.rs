@@ -13,7 +13,7 @@ mod errors {
 pub mod constants;
 pub mod memory;
 pub mod cpu;
-pub mod disasm;
+pub mod definition;
 pub mod instructions;
 pub mod instruction_set;
 pub mod operations;
