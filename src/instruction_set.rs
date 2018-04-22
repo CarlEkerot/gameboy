@@ -1874,7 +1874,7 @@ lazy_static! {
             code: 0xf1,
             length: 1,
             cycles: [12, 0],
-            operands: [Operand::RegisterPair(1, 2), Operand::None],
+            operands: [Operand::RegisterPair(0, 1), Operand::None],
             flags: [Flag::Function, Flag::Function, Flag::Function, Flag::Function],
         });
         map.insert(0xf2, Definition {
@@ -1898,7 +1898,7 @@ lazy_static! {
             code: 0xf5,
             length: 1,
             cycles: [16, 0],
-            operands: [Operand::RegisterPair(1, 2), Operand::None],
+            operands: [Operand::RegisterPair(0, 1), Operand::None],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
         });
         map.insert(0xf6, Definition {
