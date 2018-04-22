@@ -20,3 +20,12 @@ pub fn execute_all(mnemonic: Mnemonic) {
         cpu.execute(&mock_instruction(&code)).expect("FAILURE");
     }
 }
+
+pub fn execute_instruction(cpu: &mut CPU, code: OpCode, immediate: Option<u16>) {
+    let i = Instruction {
+        definition: INSTRUCTIONS.get(&code).unwrap(),
+        immediate,
+    };
+
+    cpu.execute(&i).unwrap();
+}

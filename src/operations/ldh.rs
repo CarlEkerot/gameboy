@@ -33,11 +33,32 @@ impl Execute for LoadOffset {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_all;
+    use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
+    use cpu::CPU;
+    use memory::Memory;
+    use constants::*;
 
     #[test]
     fn execute_ldh() {
         execute_all(Mnemonic::LDH);
+    }
+
+    #[test]
+    fn test_ldh_a_to_immediate_offset_addr() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0xab;
+        execute_instruction(&mut cpu, 0xe0, Some(0x22));
+        assert_eq!(cpu.ram.load(0xff22), 0xab);
+    }
+
+    #[test]
+    fn test_ldhimmediate_offset_addr_to_a() {
+        let mut mem = Memory::default();
+        mem.store(0xff22, 0xab);
+        let mut cpu = CPU::new(mem);
+        execute_instruction(&mut cpu, 0xf0, Some(0x22));
+        assert_eq!(cpu.reg[REG_A], 0xab);
     }
 }

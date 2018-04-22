@@ -34,11 +34,40 @@ impl Execute for LoadIncrease {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_all;
+    use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
+    use cpu::CPU;
+    use memory::Memory;
+    use constants::*;
 
     #[test]
     fn execute_ldi() {
         execute_all(Mnemonic::LDI);
+    }
+
+    #[test]
+    fn test_ldi_hl_addr_to_a() {
+        let mut mem = Memory::default();
+        mem.store(0xff22, 0xab);
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_H] = 0xff;
+        cpu.reg[REG_L] = 0x22;
+        execute_instruction(&mut cpu, 0x2a, None);
+        assert_eq!(cpu.reg[REG_A], 0xab);
+        assert_eq!(cpu.reg[REG_H], 0xff);
+        assert_eq!(cpu.reg[REG_L], 0x23);
+    }
+
+    #[test]
+    fn test_ldi_a_to_hl_addr() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0xab;
+        cpu.reg[REG_H] = 0xff;
+        cpu.reg[REG_L] = 0x22;
+        execute_instruction(&mut cpu, 0x22, None);
+        assert_eq!(cpu.ram.load(0xff22), 0xab);
+        assert_eq!(cpu.reg[REG_H], 0xff);
+        assert_eq!(cpu.reg[REG_L], 0x23);
     }
 }
