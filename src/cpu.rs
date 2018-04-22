@@ -6,15 +6,14 @@ use errors::*;
 use constants::*;
 use operations::*;
 use instruction_set::INSTRUCTIONS;
+use std::fmt;
 
-#[derive(Debug)]
 pub enum CPUState {
     Running,
     Halted,
     Stopped,
 }
 
-#[derive(Debug)]
 pub struct CPU {
     pub reg: [u8; 8],
     pub sp: u16,
@@ -26,12 +25,25 @@ pub struct CPU {
     interrupts: bool,
 }
 
+impl fmt::Debug for CPU {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, r#"
+A: {:02x} F: {:02x} B: {:02x} C: {:02x}
+D: {:02x} E: {:02x} H: {:02x} L: {:02x}
+SP: {:04x} PC: {:04x} Flags: {:08b}"#,
+               self.reg[0], self.reg[1], self.reg[2], self.reg[3],
+               self.reg[4], self.reg[5], self.reg[6], self.reg[7],
+               self.sp, self.pc, self.flag)
+    }
+
+}
+
 impl CPU {
     pub fn new(ram: Memory) -> CPU {
         CPU {
             reg: [0; 8],
-            sp: 0xfffe,
-            pc: 0x100,
+            sp: 0,
+            pc: 0,
             flag: 0,
             ram,
             cycles: 0,
@@ -41,9 +53,7 @@ impl CPU {
     }
 
     pub fn execute(&mut self, instruction: &Instruction) -> Result<()> {
-        // NOTE: When other cycle count?
-        self.cycles += instruction.definition.cycles[0];
-        match instruction.definition.mnemonic {
+        let res = match instruction.definition.mnemonic {
             Mnemonic::ADC => AddCarry::execute(instruction, self),
             Mnemonic::ADD => Add::execute(instruction, self),
             Mnemonic::AND => And::execute(instruction, self),
@@ -91,7 +101,14 @@ impl CPU {
             Mnemonic::SWAP => Swap::execute(instruction, self),
             Mnemonic::XOR => Xor::execute(instruction, self),
             _ => Ok(())
-        }
+        };
+        // NOTE: When other cycle count?
+        self.cycles += instruction.definition.cycles[0];
+        self.pc += match instruction.definition.mnemonic {
+            Mnemonic::CALL | Mnemonic::RST | Mnemonic::RET | Mnemonic::RETI => 0,
+            _ => instruction.definition.length,
+        } as u16;
+        res
     }
 
     pub fn read_reg_addr(&self, h: usize, l: usize) -> usize {
@@ -174,17 +191,18 @@ impl CPU {
         val
     }
 
-    fn next_instruction_byte(&mut self) -> u8 {
-        let b = self.ram.load(self.pc as usize);
-        self.pc += 1;
+    fn next_instruction_byte(&self, offset: &mut usize) -> u8 {
+        let b = self.ram.load((self.pc as usize) + *offset);
+        *offset += 1;
         b
     }
 
-    fn next_instruction(&mut self) -> Result<Instruction> {
-        let first = self.next_instruction_byte() as u16;
+    pub fn current_instruction(&self) -> Result<Instruction> {
+        let mut offset: usize = 0;
+        let first = self.next_instruction_byte(&mut offset) as u16;
         let opcode = match first {
             0xcb => {
-                let second = self.next_instruction_byte() as u16;
+                let second = self.next_instruction_byte(&mut offset) as u16;
                 first << 8 | second
             },
             _ => first,
@@ -193,10 +211,10 @@ impl CPU {
         let definition = INSTRUCTIONS.get(&opcode).chain_err(|| "Invalid opcode")?;
 
         let immediate = definition.immediate_type().map(|i| match i {
-            ImmediateType::Byte => self.next_instruction_byte() as u16,
+            ImmediateType::Byte => self.next_instruction_byte(&mut offset) as u16,
             ImmediateType::Short => {
-                let lo = self.next_instruction_byte() as u16;
-                let hi = self.next_instruction_byte() as u16;
+                let lo = self.next_instruction_byte(&mut offset) as u16;
+                let hi = self.next_instruction_byte(&mut offset) as u16;
                 hi << 8 | lo
             },
         });
@@ -205,6 +223,12 @@ impl CPU {
             definition,
             immediate
         })
+    }
+
+    pub fn execute_next(&mut self) {
+        let instruction = self.current_instruction().unwrap();
+        println!("Executing {}", instruction);
+        self.execute(&instruction);
     }
 }
 
@@ -221,7 +245,7 @@ mod tests {
         mem.store(0x100, 0xaf);
 
         let mut cpu = CPU::new(mem);
-        let instruction = cpu.next_instruction().unwrap();
+        let instruction = cpu.current_instruction().unwrap();
 
         assert_eq!(instruction.definition.mnemonic, Mnemonic::XOR);
         assert_eq!(instruction.definition.operands[0], Operand::Register(REG_A));
@@ -235,7 +259,7 @@ mod tests {
         mem.store(0x102, 0xff);
 
         let mut cpu = CPU::new(mem);
-        let instruction = cpu.next_instruction().unwrap();
+        let instruction = cpu.current_instruction().unwrap();
 
         assert_eq!(instruction.definition.mnemonic, Mnemonic::LD);
         assert_eq!(instruction.definition.operands[0], Operand::SP);
@@ -251,7 +275,6 @@ mod tests {
         assert_eq!(bytes_read, 256);
 
         let mut cpu = CPU::new(mem);
-        cpu.pc = 0;
 
         let expected = [
             "LD SP, $fffe",
@@ -262,8 +285,9 @@ mod tests {
         ];
 
         for &e in expected.iter() {
-            let instruction = cpu.next_instruction().unwrap();
+            let instruction = cpu.current_instruction().unwrap();
             assert_eq!(instruction.to_string(), e);
+            cpu.pc += instruction.definition.length as u16;
         }
     }
 }

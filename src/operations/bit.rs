@@ -18,7 +18,8 @@ impl Execute for Bit {
                 let val = cpu.reg[r];
                 let test_bit = 1u8 << b;
 
-                cpu.flag_cond(FLAG_Z, val & test_bit != 0);
+                // Set if zero
+                cpu.flag_cond(FLAG_Z, val & test_bit == 0);
                 cpu.clear_flag(FLAG_N);
                 cpu.set_flag(FLAG_H);
             },
@@ -27,7 +28,7 @@ impl Execute for Bit {
                 let val = cpu.ram.load(addr);
                 let test_bit = 1u8 << b;
 
-                cpu.flag_cond(FLAG_Z, val & test_bit != 0);
+                cpu.flag_cond(FLAG_Z, val & test_bit == 0);
                 cpu.clear_flag(FLAG_N);
                 cpu.set_flag(FLAG_H);
             },
@@ -36,15 +37,6 @@ impl Execute for Bit {
                 println!("UNEXPECTED OPERAND {}", src);
             },
         };
-        let val = cpu.reg[REG_A];
-        let lsb = val & 0x1;
-        let res = ((val >> 1) & 0xff) | (lsb << 7);
-        cpu.reg[REG_A] = res;
-
-        cpu.flag_cond(FLAG_Z, res == 0);
-        cpu.clear_flag(FLAG_N);
-        cpu.clear_flag(FLAG_H);
-        cpu.flag_cond(FLAG_C, lsb == 1);
         Ok(())
     }
 }

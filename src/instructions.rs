@@ -2,13 +2,13 @@ use std::fmt;
 use definition::{Definition, Operand};
 use errors::*;
 
-#[derive(Debug)]
-pub struct Instruction<'a> {
-    pub definition: &'a Definition,
+#[derive(Debug, Clone)]
+pub struct Instruction {
+    pub definition: &'static Definition,
     pub immediate: Option<u16>,
 }
 
-impl<'a> Instruction<'a> {
+impl Instruction {
     pub fn get_immediate_usize(&self) -> Result<usize> {
         self.immediate.map(|i| i as usize).chain_err(|| "Missing immediate")
     }
@@ -34,7 +34,7 @@ impl<'a> Instruction<'a> {
     }
 }
 
-impl<'a> fmt::Display for Instruction<'a> {
+impl fmt::Display for Instruction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let a = self.definition.operands.get(0).unwrap_or(&Operand::None);
         let b = self.definition.operands.get(1).unwrap_or(&Operand::None);
