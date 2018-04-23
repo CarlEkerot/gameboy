@@ -39,11 +39,77 @@ impl Execute for Or {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_all;
+    use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
+    use cpu::CPU;
+    use memory::Memory;
+    use constants::*;
 
     #[test]
     fn execute_ors() {
         execute_all(Mnemonic::OR);
+    }
+
+    #[test]
+    fn test_or_reg_with_a() {
+        let reg_codes: [(u16, usize); 7] = [
+            (0xb7, REG_A),
+            (0xb0, REG_B),
+            (0xb1, REG_C),
+            (0xb2, REG_D),
+            (0xb3, REG_E),
+            (0xb4, REG_H),
+            (0xb5, REG_L),
+        ];
+
+        for &(c, r) in reg_codes.iter() {
+            let mut mem = Memory::default();
+            let mut cpu = CPU::new(mem);
+            cpu.reg[REG_A] = 0b0001_1100;
+            if r != REG_A {
+                cpu.reg[r] = 0b0011_1000;
+            }
+            execute_instruction(&mut cpu, c, None);
+            if r != REG_A {
+                assert_eq!(cpu.reg[REG_A], 0b0011_1100);
+            } else {
+                assert_eq!(cpu.reg[REG_A], 0b0001_1100);
+            }
+            assert_eq!(cpu.flag, 0b0000_0000);
+        }
+    }
+
+    #[test]
+    fn test_or_to_zero_with_a() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0b0000_0000;
+        cpu.reg[REG_B] = 0b0000_0000;
+        execute_instruction(&mut cpu, 0xb0, None);
+        assert_eq!(cpu.reg[REG_A], 0b0000_0000);
+        assert_eq!(cpu.flag, 0b1000_0000);
+    }
+
+    #[test]
+    fn test_or_immediate_with_a() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0b0001_1100;
+        execute_instruction(&mut cpu, 0xf6, Some(0b0011_1000));
+        assert_eq!(cpu.reg[REG_A], 0b0011_1100);
+        assert_eq!(cpu.flag, 0b0000_0000);
+    }
+
+    #[test]
+    fn test_or_regpair_addr_with_a() {
+        let mut mem = Memory::default();
+        mem.store(0xff22, 0b0011_1000);
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0b0001_1100;
+        cpu.reg[REG_H] = 0xff;
+        cpu.reg[REG_L] = 0x22;
+        execute_instruction(&mut cpu, 0xb6, None);
+        assert_eq!(cpu.reg[REG_A], 0b0011_1100);
+        assert_eq!(cpu.flag, 0b0000_0000);
     }
 }

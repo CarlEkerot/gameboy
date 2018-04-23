@@ -39,11 +39,67 @@ impl Execute for Xor {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_all;
+    use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
+    use cpu::CPU;
+    use memory::Memory;
+    use constants::*;
 
     #[test]
     fn execute_xors() {
         execute_all(Mnemonic::XOR);
+    }
+
+    #[test]
+    fn test_xor_reg_with_a() {
+        let reg_codes: [(u16, usize); 7] = [
+            (0xaf, REG_A),
+            (0xa8, REG_B),
+            (0xa9, REG_C),
+            (0xaa, REG_D),
+            (0xab, REG_E),
+            (0xac, REG_H),
+            (0xad, REG_L),
+        ];
+
+        for &(c, r) in reg_codes.iter() {
+            let mut mem = Memory::default();
+            let mut cpu = CPU::new(mem);
+            cpu.reg[REG_A] = 0b0001_1100;
+            if r != REG_A {
+                cpu.reg[r] = 0b0011_1000;
+            }
+            execute_instruction(&mut cpu, c, None);
+            if r != REG_A {
+                assert_eq!(cpu.reg[REG_A], 0b0010_0100);
+                assert_eq!(cpu.flag, 0b0000_0000);
+            } else {
+                assert_eq!(cpu.reg[REG_A], 0b0000_0000);
+                assert_eq!(cpu.flag, 0b1000_0000);
+            }
+        }
+    }
+
+    #[test]
+    fn test_xor_immediate_with_a() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0b0001_1100;
+        execute_instruction(&mut cpu, 0xee, Some(0b0011_1000));
+        assert_eq!(cpu.reg[REG_A], 0b0010_0100);
+        assert_eq!(cpu.flag, 0b0000_0000);
+    }
+
+    #[test]
+    fn test_xor_regpair_addr_with_a() {
+        let mut mem = Memory::default();
+        mem.store(0xff22, 0b0011_1000);
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0b0001_1100;
+        cpu.reg[REG_H] = 0xff;
+        cpu.reg[REG_L] = 0x22;
+        execute_instruction(&mut cpu, 0xae, None);
+        assert_eq!(cpu.reg[REG_A], 0b0010_0100);
+        assert_eq!(cpu.flag, 0b0000_0000);
     }
 }
