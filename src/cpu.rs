@@ -145,6 +145,7 @@ impl CPU {
     }
 
     pub fn is_carry(a: usize, b: usize) -> bool {
+        // TODO: Perhaps make sure we use u8 wrapping arithmetics
         (((a & 0xff) + (b & 0xff)) & 0x100) == 0x100
     }
 
