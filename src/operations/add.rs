@@ -53,8 +53,10 @@ impl Execute for Add {
                 cpu.store_reg_short(h1, l1, a.wrapping_add(b));
 
                 cpu.clear_flag(FLAG_N);
-                cpu.set_half_carry(a as usize, b as usize);
-                cpu.set_carry(a as usize, b as usize);
+
+                // 16 bit carry
+                cpu.set_half_carry((a >> 8) as usize, (b >> 8) as usize);
+                cpu.set_carry((a >> 8) as usize, (b >> 8) as usize);
             },
             (&Operand::RegisterPair(h, l), &Operand::SP) => {
                 let a = cpu.read_reg_short(h, l);
@@ -62,8 +64,8 @@ impl Execute for Add {
                 cpu.store_reg_short(h, l, a.wrapping_add(b));
 
                 cpu.clear_flag(FLAG_N);
-                cpu.set_half_carry(a as usize, b as usize);
-                cpu.set_carry(a as usize, b as usize);
+                cpu.set_half_carry((a >> 8) as usize, (b >> 8) as usize);
+                cpu.set_carry((a >> 8) as usize, (b >> 8) as usize);
             },
             (&Operand::SP, &Operand::Offset(BYTE)) => {
                 let a = cpu.sp;
@@ -176,5 +178,73 @@ mod tests {
         cpu.reg[REG_L] = 0x22;
         execute_instruction(&mut cpu, 0x86, None);
         assert_eq!(cpu.reg[REG_A], 0xab);
+    }
+
+    #[test]
+    fn test_add_regpair_to_hl() {
+        let pairs: [(u16, usize, usize); 3] = [
+            (0x09, REG_B, REG_C),
+            (0x19, REG_D, REG_E),
+            (0x29, REG_H, REG_L),
+        ];
+
+        for &(c, h, l) in pairs.iter() {
+            let mut mem = Memory::default();
+            let mut cpu = CPU::new(mem);
+            cpu.reg[REG_H] = 0x01;
+            cpu.reg[REG_L] = 0x02;
+            if h != REG_H {
+                cpu.reg[h] = 0x03;
+                cpu.reg[l] = 0x04;
+            }
+            execute_instruction(&mut cpu, c, None);
+            if h != REG_H {
+                assert_eq!(cpu.reg[REG_H], 0x04);
+                assert_eq!(cpu.reg[REG_L], 0x06);
+            } else {
+                assert_eq!(cpu.reg[REG_H], 0x02);
+                assert_eq!(cpu.reg[REG_L], 0x04);
+            }
+        }
+    }
+
+    #[test]
+    fn test_add_regpair_to_hl_half_carry() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_H] = 0x08;
+        cpu.reg[REG_L] = 0x02;
+        cpu.reg[REG_B] = 0x09;
+        cpu.reg[REG_C] = 0x04;
+        execute_instruction(&mut cpu, 0x09, None);
+        assert_eq!(cpu.reg[REG_H], 0x11);
+        assert_eq!(cpu.reg[REG_L], 0x06);
+        assert_eq!(cpu.flag, 0b0010_0000);
+    }
+
+    #[test]
+    fn test_add_regpair_to_hl_carry() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_H] = 0x80;
+        cpu.reg[REG_L] = 0x02;
+        cpu.reg[REG_B] = 0x81;
+        cpu.reg[REG_C] = 0x04;
+        execute_instruction(&mut cpu, 0x09, None);
+        assert_eq!(cpu.reg[REG_H], 0x01);
+        assert_eq!(cpu.reg[REG_L], 0x06);
+        assert_eq!(cpu.flag, 0b0001_0000);
+    }
+
+    #[test]
+    fn test_add_sp_to_hl() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_H] = 0x01;
+        cpu.reg[REG_L] = 0x02;
+        cpu.sp = 0x03;
+        execute_instruction(&mut cpu, 0x39, None);
+        assert_eq!(cpu.reg[REG_H], 0x01);
+        assert_eq!(cpu.reg[REG_L], 0x05);
     }
 }
