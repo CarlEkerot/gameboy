@@ -48,11 +48,70 @@ impl Execute for RotateRightCarry {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_all;
+    use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
+    use cpu::CPU;
+    use memory::Memory;
+    use constants::*;
 
     #[test]
     fn execute_rrc() {
         execute_all(Mnemonic::RRC);
+    }
+
+    #[test]
+    fn test_rrc_reg_no_carry() {
+        let reg_codes: [(u16, usize); 7] = [
+            (0xcb0f, REG_A),
+            (0xcb08, REG_B),
+            (0xcb09, REG_C),
+            (0xcb0a, REG_D),
+            (0xcb0b, REG_E),
+            (0xcb0c, REG_H),
+            (0xcb0d, REG_L),
+        ];
+
+        for &(c, r) in reg_codes.iter() {
+            let mut mem = Memory::default();
+            let mut cpu = CPU::new(mem);
+            cpu.reg[r] = 0b1111_1110;
+            execute_instruction(&mut cpu, c, None);
+            assert_eq!(cpu.reg[r], 0b0111_1111);
+            assert_eq!(cpu.flag, 0b0000_0000);
+        }
+    }
+
+    #[test]
+    fn test_rrc_reg_carry() {
+        let reg_codes: [(u16, usize); 7] = [
+            (0xcb0f, REG_A),
+            (0xcb08, REG_B),
+            (0xcb09, REG_C),
+            (0xcb0a, REG_D),
+            (0xcb0b, REG_E),
+            (0xcb0c, REG_H),
+            (0xcb0d, REG_L),
+        ];
+
+        for &(c, r) in reg_codes.iter() {
+            let mut mem = Memory::default();
+            let mut cpu = CPU::new(mem);
+            cpu.reg[r] = 0b1111_1111;
+            execute_instruction(&mut cpu, c, None);
+            assert_eq!(cpu.reg[r], 0b1111_1111);
+            assert_eq!(cpu.flag, 0b0001_0000);
+        }
+    }
+
+    #[test]
+    fn test_rrc_regpair_addr_no_carry() {
+        let mut mem = Memory::default();
+        mem.store(0xff22, 0b1111_1110);
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_H] = 0xff;
+        cpu.reg[REG_L] = 0x22;
+        execute_instruction(&mut cpu, 0xcb0e, None);
+        assert_eq!(cpu.ram.load(0xff22), 0b0111_1111);
+        assert_eq!(cpu.flag, 0b0000_0000);
     }
 }

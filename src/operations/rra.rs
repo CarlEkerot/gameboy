@@ -30,11 +30,34 @@ impl Execute for RotateARight {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_all;
+    use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
+    use cpu::CPU;
+    use memory::Memory;
+    use constants::*;
 
     #[test]
     fn execute_rra() {
         execute_all(Mnemonic::RRA);
+    }
+
+    #[test]
+    fn test_rra_no_carry() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0b1111_1110;
+        execute_instruction(&mut cpu, 0x1f, None);
+        assert_eq!(cpu.reg[REG_A], 0b0111_1111);
+        assert_eq!(cpu.flag, 0b0000_0000);
+    }
+
+    #[test]
+    fn test_rra_carry() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0b1111_1111;
+        execute_instruction(&mut cpu, 0x1f, None);
+        assert_eq!(cpu.reg[REG_A], 0b0111_1111);
+        assert_eq!(cpu.flag, 0b0001_0000);
     }
 }
