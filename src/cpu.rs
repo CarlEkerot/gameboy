@@ -105,10 +105,7 @@ impl CPU {
         };
         // NOTE: When other cycle count?
         self.cycles += instruction.definition.cycles[0];
-        self.pc += match instruction.definition.mnemonic {
-            Mnemonic::CALL | Mnemonic::RST | Mnemonic::RET | Mnemonic::RETI => 0,
-            _ => instruction.definition.length,
-        } as u16;
+        self.pc = self.pc.wrapping_add(instruction.definition.length as u16);
         res
     }
 
@@ -183,13 +180,13 @@ impl CPU {
     }
 
     pub fn stack_push(&mut self, b: u8) {
+        self.sp = self.sp.wrapping_sub(1);
         self.ram.store(self.sp as usize, b);
-        self.sp -= 1;
     }
 
     pub fn stack_pop(&mut self) -> u8 {
         let val = self.ram.load(self.sp as usize);
-        self.sp += 1;
+        self.sp = self.sp.wrapping_add(1);
         val
     }
 
@@ -291,5 +288,15 @@ mod tests {
             assert_eq!(instruction.to_string(), e);
             cpu.pc += instruction.definition.length as u16;
         }
+    }
+
+    #[test]
+    fn test_stack() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.sp = 0x1122;
+        cpu.stack_push(0x12);
+        let res = cpu.stack_pop();
+        assert_eq!(res, 0x12);
     }
 }

@@ -55,8 +55,8 @@ mod tests {
             cpu.reg[h] = 0xaa;
             cpu.reg[l] = 0xbb;
             execute_instruction(&mut cpu, c, None);
-            assert_eq!(cpu.ram.load(0xff22), 0xbb);
-            assert_eq!(cpu.ram.load(0xff21), 0xaa);
+            assert_eq!(cpu.ram.load(0xff21), 0xbb);
+            assert_eq!(cpu.ram.load(0xff20), 0xaa);
             assert_eq!(cpu.sp, 0xff20);
         }
     }

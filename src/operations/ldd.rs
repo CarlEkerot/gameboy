@@ -15,13 +15,13 @@ impl Execute for LoadDecrease {
             (&Operand::RegisterPairAddr(h, l), &Operand::Register(r)) => {
                 let mut addr = cpu.read_reg_addr(h, l);
                 cpu.ram.store(addr, cpu.reg[r]);
-                addr -= 1;
+                addr = addr.wrapping_sub(1);
                 cpu.store_reg_short(h, l, addr as u16);
             },
             (&Operand::Register(r), &Operand::RegisterPairAddr(h, l)) => {
                 let mut addr = cpu.read_reg_addr(h, l);
                 cpu.reg[r] = cpu.ram.load(addr);
-                addr -= 1;
+                addr = addr.wrapping_sub(1);
                 cpu.store_reg_short(h, l, addr as u16);
             },
             _ => {

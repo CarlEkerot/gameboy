@@ -89,7 +89,7 @@ mod tests {
         cpu.reg[REG_A] = 0xff;
         execute_instruction(&mut cpu, 0x3c, None);
         assert_eq!(cpu.reg[REG_A], 0x00);
-        assert_eq!(cpu.flag, 0b1000_0000);
+        assert_eq!(cpu.flag, 0b1010_0000);
     }
 
     #[test]

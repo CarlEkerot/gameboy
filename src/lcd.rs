@@ -61,7 +61,8 @@ impl LCD {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
+
+    // #[test]
     fn run() {
         let mut l = LCD::new();
         l.set_pixel(10, 10, Shade::Shade0);
