@@ -8,6 +8,7 @@ use operations::*;
 use instruction_set::INSTRUCTIONS;
 use std::fmt;
 
+#[derive(Debug, PartialEq)]
 pub enum CPUState {
     Running,
     Halted,
@@ -20,9 +21,9 @@ pub struct CPU {
     pub pc: u16,
     pub flag: u8,
     pub ram: Memory,
-    cycles: usize,
-    state: CPUState,
-    interrupts: bool,
+    pub cycles: usize,
+    pub state: CPUState,
+    pub interrupts: bool,
 }
 
 impl fmt::Debug for CPU {

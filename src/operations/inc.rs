@@ -40,9 +40,10 @@ impl Execute for Increase {
                 0
             }
         };
+
         cpu.set_half_carry(val, 1);
         cpu.clear_flag(FLAG_N);
-        cpu.flag_cond(FLAG_Z, val == 0);
+        cpu.flag_cond(FLAG_Z, (val as u8).wrapping_add(1) == 0);
         Ok(())
     }
 }

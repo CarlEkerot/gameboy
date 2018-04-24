@@ -14,11 +14,22 @@ impl Execute for Stop {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_all;
+    use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
+    use cpu::{CPU, CPUState};
+    use memory::Memory;
+    use constants::*;
 
     #[test]
     fn execute_stop() {
         execute_all(Mnemonic::STOP);
+    }
+
+    #[test]
+    fn test_stop() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        execute_instruction(&mut cpu, 0x10, None);
+        assert_eq!(cpu.state, CPUState::Stopped)
     }
 }

@@ -14,11 +14,22 @@ impl Execute for DisableInterrupts {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_all;
+    use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
+    use cpu::{CPU, CPUState};
+    use memory::Memory;
+    use constants::*;
 
     #[test]
     fn execute_di() {
         execute_all(Mnemonic::DI);
+    }
+
+    #[test]
+    fn test_disable_interrupts() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        execute_instruction(&mut cpu, 0xf3, None);
+        assert_eq!(cpu.interrupts, false)
     }
 }

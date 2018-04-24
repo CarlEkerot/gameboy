@@ -14,11 +14,22 @@ impl Execute for Halt {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_all;
+    use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
+    use cpu::{CPU, CPUState};
+    use memory::Memory;
+    use constants::*;
 
     #[test]
     fn execute_halt() {
         execute_all(Mnemonic::HALT);
+    }
+
+    #[test]
+    fn test_halt() {
+        let mut mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        execute_instruction(&mut cpu, 0x76, None);
+        assert_eq!(cpu.state, CPUState::Halted)
     }
 }
