@@ -13,6 +13,7 @@ pub struct Memory {
 
 impl Memory {
     pub fn new(size: usize) -> Memory {
+        // TODO: Set actual size
         Memory {
             size,
             mem: [0u8; DEFAULT_RAM],
@@ -50,6 +51,10 @@ impl Memory {
 
     pub fn load_rom(&mut self, rom: &mut File) -> Result<usize> {
         rom.read(&mut self.mem).chain_err(|| "Failed to read rom")
+    }
+
+    pub fn clear(&mut self) {
+        self.mem = [0u8; DEFAULT_RAM];
     }
 }
 

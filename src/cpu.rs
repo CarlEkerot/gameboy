@@ -224,10 +224,21 @@ impl CPU {
         })
     }
 
-    pub fn execute_next(&mut self) {
+    pub fn execute_next(&mut self) -> Instruction {
         let instruction = self.current_instruction().unwrap();
-        println!("Executing {}", instruction);
         self.execute(&instruction);
+        instruction
+    }
+
+    pub fn reset(&mut self) {
+        self.reg = [0; 8];
+        self.sp = 0;
+        self.pc = 0;
+        self.flag = 0;
+        self.cycles = 0;
+        self.state = CPUState::Running;
+        self.enable_interrupts();
+        self.ram.clear()
     }
 }
 

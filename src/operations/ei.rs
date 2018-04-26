@@ -16,9 +16,8 @@ impl Execute for EnableInterrupts {
 mod tests {
     use test_helpers::{execute_all, execute_instruction};
     use definition::Mnemonic;
-    use cpu::{CPU, CPUState};
+    use cpu::CPU;
     use memory::Memory;
-    use constants::*;
 
     #[test]
     fn execute_ei() {

@@ -32,8 +32,7 @@ impl Execute for Set {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
-    use definition::Mnemonic;
+    use test_helpers::execute_instruction;
     use cpu::CPU;
     use memory::Memory;
     use constants::*;

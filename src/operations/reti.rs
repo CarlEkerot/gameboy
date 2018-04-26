@@ -25,7 +25,6 @@ mod tests {
     use definition::Mnemonic;
     use cpu::CPU;
     use memory::Memory;
-    use constants::*;
 
     #[test]
     fn execute_reti() {

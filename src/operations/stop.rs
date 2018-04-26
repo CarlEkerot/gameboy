@@ -18,7 +18,6 @@ mod tests {
     use definition::Mnemonic;
     use cpu::{CPU, CPUState};
     use memory::Memory;
-    use constants::*;
 
     #[test]
     fn execute_stop() {

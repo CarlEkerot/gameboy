@@ -18,5 +18,6 @@ pub mod instructions;
 pub mod instruction_set;
 pub mod operations;
 pub mod lcd;
+pub mod debugger;
 
 mod test_helpers;
