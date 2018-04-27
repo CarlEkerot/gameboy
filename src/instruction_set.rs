@@ -1792,7 +1792,7 @@ lazy_static! {
         map.insert(0xe2, Definition {
             mnemonic: Mnemonic::LD,
             code: 0xe2,
-            length: 2,
+            length: 1,
             cycles: [8, 0],
             operands: [Operand::RegisterAddr(3), Operand::Register(0)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],
@@ -1880,7 +1880,7 @@ lazy_static! {
         map.insert(0xf2, Definition {
             mnemonic: Mnemonic::LD,
             code: 0xf2,
-            length: 2,
+            length: 1,
             cycles: [8, 0],
             operands: [Operand::Register(0), Operand::RegisterAddr(3)],
             flags: [Flag::Unchanged, Flag::Unchanged, Flag::Unchanged, Flag::Unchanged],

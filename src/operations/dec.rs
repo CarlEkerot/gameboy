@@ -11,39 +11,44 @@ impl Execute for Decrease {
     fn execute(instruction: &Instruction, cpu: &mut CPU) -> Result<()> {
         let dst = instruction.get_operand(0)?;
 
-        let val = match *dst {
+        match *dst {
             Operand::Register(r) => {
-                let v = cpu.reg[r];
-                cpu.reg[r] = v.wrapping_sub(1);
-                v as usize
+                let val = cpu.reg[r];
+                let res = val.wrapping_sub(1);
+                cpu.reg[r] = res;
+                cpu.set_half_carry(val as usize, 1);
+                cpu.flag_cond(FLAG_Z, res == 0);
             },
             Operand::RegisterPair(h, l) => {
-                let v = cpu.read_reg_short(h, l);
-                cpu.store_reg_short(h, l, v.wrapping_sub(1));
+                let val = cpu.read_reg_short(h, l);
+                let res = val.wrapping_sub(1);
+                cpu.store_reg_short(h, l, val);
 
                 // Make sure we calculate carry on high byte
-                (v >> 8) as usize
+                cpu.set_half_carry((val >> 8) as usize, 1);
+                cpu.flag_cond(FLAG_Z, res == 0);
             },
             Operand::SP => {
-                let v = cpu.sp;
-                cpu.sp = v.wrapping_sub(1);
-                (v >> 8) as usize
+                let val = cpu.sp;
+                let res = val.wrapping_sub(1);
+                cpu.sp = res;
+                cpu.set_half_carry((val >> 8) as usize, 1);
+                cpu.flag_cond(FLAG_Z, res == 0);
             },
             Operand::RegisterPairAddr(h, l) => {
                 let addr = cpu.read_reg_addr(h, l);
-                let v = cpu.ram.load(addr);
-                cpu.ram.store(addr, v.wrapping_sub(1));
-                v as usize
+                let val = cpu.ram.load(addr);
+                let res = val.wrapping_sub(1);
+                cpu.ram.store(addr, res);
+                cpu.set_half_carry(val as usize, 1);
+                cpu.flag_cond(FLAG_Z, res == 0);
             },
             _ => {
                 println!("UNEXPECTED OPERANDS IN DEC");
-                0
             }
         };
 
-        cpu.set_half_carry(val, 1);
         cpu.clear_flag(FLAG_N);
-        cpu.flag_cond(FLAG_Z, val == 0);
         Ok(())
     }
 }

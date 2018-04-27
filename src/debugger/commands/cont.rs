@@ -15,5 +15,7 @@ impl Command for Continue {
             let instruction = debugger.cpu.execute_next();
             print!("{}\n", instruction);
         };
+        let instruction = debugger.cpu.current_instruction().unwrap();
+        println!("${:04x}: {}", debugger.cpu.pc, instruction);
     }
 }

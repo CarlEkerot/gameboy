@@ -10,8 +10,8 @@ impl Command for Next {
     }
 
     fn execute(self, debugger: &mut Debugger) {
-        print!("${:04x}: ", debugger.cpu.pc);
-        let instruction = debugger.cpu.execute_next();
-        print!("{}\n", instruction);
+        debugger.cpu.execute_next();
+        let instruction = debugger.cpu.current_instruction().unwrap();
+        println!("${:04x}: {}", debugger.cpu.pc, instruction);
     }
 }
