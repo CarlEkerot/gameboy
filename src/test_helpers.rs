@@ -2,11 +2,12 @@ use cpu::CPU;
 use memory::Memory;
 use instructions::Instruction;
 use definition::{Mnemonic, OpCode};
-use instruction_set::INSTRUCTIONS;
+use instruction_set::get_definition;
+use definition::Definition;
 
-fn mock_instruction(code: &OpCode) -> Instruction {
+fn mock_instruction(definition: &'static Definition) -> Instruction {
     Instruction {
-        definition: INSTRUCTIONS.get(code).unwrap(),
+        definition,
         immediate: Some(5),
     }
 }
@@ -14,16 +15,16 @@ fn mock_instruction(code: &OpCode) -> Instruction {
 pub fn execute_all(mnemonic: Mnemonic) {
     let m = Memory::default();
     let mut cpu = CPU::new(m);
-    let itr = INSTRUCTIONS.iter()
-        .filter(|&(_, d)| d.mnemonic == mnemonic);
-    for (code, _) in itr {
-        cpu.execute(&mock_instruction(&code)).expect("FAILURE");
+    let itr = (0..512).map(get_definition)
+        .filter(|&d| d.mnemonic == mnemonic);
+    for d in itr {
+        cpu.execute(&mock_instruction(&d)).expect("FAILURE");
     }
 }
 
 pub fn execute_instruction(cpu: &mut CPU, code: OpCode, immediate: Option<u16>) {
     let i = Instruction {
-        definition: INSTRUCTIONS.get(&code).unwrap(),
+        definition: get_definition(code),
         immediate,
     };
 

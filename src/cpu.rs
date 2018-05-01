@@ -5,7 +5,7 @@ use definition::{Mnemonic, ImmediateType};
 use errors::*;
 use constants::*;
 use operations::*;
-use instruction_set::INSTRUCTIONS;
+use instruction_set::get_definition;
 use std::fmt;
 
 #[derive(Debug, PartialEq)]
@@ -207,9 +207,9 @@ impl CPU {
             _ => first,
         };
 
-        let definition = INSTRUCTIONS.get(&opcode).chain_err(|| "Invalid opcode")?;
+        let definition = get_definition(opcode);
 
-        let immediate = definition.immediate_type().map(|i| match i {
+        let immediate = definition.immediate_size.as_ref().map(|i| match *i {
             ImmediateType::Byte => self.next_instruction_byte(&mut offset) as u16,
             ImmediateType::Short => {
                 let lo = self.next_instruction_byte(&mut offset) as u16;

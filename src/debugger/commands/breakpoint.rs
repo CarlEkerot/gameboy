@@ -1,5 +1,4 @@
 use std::fmt;
-use cpu::CPU;
 use debugger::Debugger;
 use debugger::commands::Command;
 

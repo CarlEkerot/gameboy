@@ -82,6 +82,7 @@ pub const IMMEDIATES: [Operand; 6] = [
     Operand::SPOffset(8),
 ];
 
+#[derive(Debug)]
 pub enum ImmediateType {
     Byte,
     Short,
@@ -148,19 +149,7 @@ pub struct Definition {
     pub operands: [Operand; 2],
     pub cycles: [usize; 2],
     pub flags: [Flag; 4],
-}
-
-impl Definition {
-    pub fn immediate_type(&self) -> Option<ImmediateType> {
-        match self.operands.iter().find(|&o| IMMEDIATES.contains(o)) {
-            Some(&Operand::Immediate(8)) | Some(&Operand::Address(8)) |
-            Some(&Operand::Offset(8)) | Some(&Operand::SPOffset(8)) =>
-                Some(ImmediateType::Byte),
-            Some(&Operand::Immediate(16)) | Some(&Operand::Address(16)) =>
-                Some(ImmediateType::Short),
-            _ => None,
-        }
-    }
+    pub immediate_size: Option<ImmediateType>,
 }
 
 pub const INVALID: Definition = Definition {
@@ -174,5 +163,6 @@ pub const INVALID: Definition = Definition {
         Flag::Unchanged,
         Flag::Unchanged,
         Flag::Unchanged,
-    ]
+    ],
+    immediate_size: None,
 };

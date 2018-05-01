@@ -1,5 +1,5 @@
 use debugger::Debugger;
-use debugger::commands::{Breakpoint, Command};
+use debugger::commands::Command;
 
 pub struct Continue;
 

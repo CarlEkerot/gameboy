@@ -56,6 +56,10 @@ impl LCD {
         self.canvas.present();
         ::std::thread::sleep(Duration::new(10, 1_000_000_000u32 / 60));
     }
+
+    pub fn update_frame(&mut self) {
+
+    }
 }
 
 #[cfg(test)]

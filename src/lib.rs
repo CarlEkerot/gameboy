@@ -1,9 +1,6 @@
 #[macro_use]
 extern crate error_chain;
 
-#[macro_use]
-extern crate lazy_static;
-
 extern crate sdl2;
 
 mod errors {
@@ -19,5 +16,6 @@ pub mod instruction_set;
 pub mod operations;
 pub mod lcd;
 pub mod debugger;
+pub mod emulator;
 
 mod test_helpers;

@@ -99,3 +99,8 @@ pub const MREG_SVBK: usize = 0xff70;
 pub const MREG_PCM12: usize = 0xff76;
 pub const MREG_PCM34: usize = 0xff77;
 pub const MREG_IE: usize = 0xffff;
+
+pub const CLOCK_SPEED: usize = 4194304;
+pub const FRAME_RATE: usize = 60;
+pub const H_SYNC: usize = 9198000;
+pub const V_SYNC: usize = 60;
