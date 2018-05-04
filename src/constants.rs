@@ -104,3 +104,10 @@ pub const CLOCK_SPEED: usize = 4194304;
 pub const FRAME_RATE: usize = 60;
 pub const H_SYNC: usize = 9198000;
 pub const V_SYNC: usize = 60;
+
+pub const TIMER_CYCLES_PER_TICK: [usize; 4] = [
+    1024,
+    16,
+    64,
+    256,
+];

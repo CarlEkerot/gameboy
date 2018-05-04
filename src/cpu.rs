@@ -8,6 +8,39 @@ use operations::*;
 use instruction_set::get_definition;
 use std::fmt;
 
+#[derive(Debug)]
+pub struct Timer {
+    prev_count: u8,
+    count: u8,
+    timer_count: usize,
+    cycles_per_tick: usize,
+}
+
+impl Timer {
+    pub fn increase(&mut self, cycles: usize) {
+        self.prev_count = self.count;
+        self.timer_count += cycles;
+        if self.timer_count >= self.cycles_per_tick {
+            self.count = self.count.wrapping_add(1);
+            self.timer_count %= self.cycles_per_tick;
+        }
+    }
+    pub fn did_overflow(&self) -> bool {
+        self.count < self.prev_count
+    }
+}
+
+impl Default for Timer {
+    fn default() -> Self {
+        Timer {
+            prev_count: 0,
+            count: 0,
+            timer_count: 0,
+            cycles_per_tick: TIMER_CYCLES_PER_TICK[0],
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum CPUState {
     Running,
@@ -22,6 +55,7 @@ pub struct CPU {
     pub flag: u8,
     pub ram: Memory,
     pub cycles: usize,
+    pub timer: Timer,
     pub state: CPUState,
     pub interrupts: bool,
 }
@@ -48,6 +82,7 @@ impl CPU {
             flag: 0,
             ram,
             cycles: 0,
+            timer: Timer::default(),
             state: CPUState::Running,
             interrupts: true,
         }
@@ -104,7 +139,9 @@ impl CPU {
             _ => Ok(())
         };
         // NOTE: When other cycle count?
-        self.cycles += instruction.definition.cycles[0];
+        let instruction_cycles = instruction.definition.cycles[0];
+        self.cycles += instruction_cycles;
+        self.timer.increase(instruction_cycles);
         self.pc = self.pc.wrapping_add(instruction.definition.length as u16);
         res
     }
@@ -230,6 +267,19 @@ impl CPU {
         instruction
     }
 
+    pub fn update_timer_mode(&mut self) {
+        let mode = self.ram.load(MREG_TAC) & 0b11;
+        self.timer.cycles_per_tick = TIMER_CYCLES_PER_TICK[mode as usize];
+    }
+
+    pub fn update_timer(&mut self, cycles: usize) {
+        let was = self.timer.count;
+        self.timer.increase(cycles);
+        if self.timer.did_overflow() {
+            // TODO: Should set interrupt!
+        }
+    }
+
     pub fn reset(&mut self) {
         self.reg = [0; 8];
         self.sp = 0;
@@ -309,5 +359,30 @@ mod tests {
         cpu.stack_push(0x12);
         let res = cpu.stack_pop();
         assert_eq!(res, 0x12);
+    }
+
+    #[test]
+    fn test_timer() {
+        for &cycles in TIMER_CYCLES_PER_TICK.iter() {
+            let mut t = Timer::default();
+            t.cycles_per_tick = cycles;
+
+            for _ in 0..(CLOCK_SPEED - 1) {
+                t.increase(1)
+            }
+
+            assert_eq!(t.count, 255);
+            assert_eq!(t.timer_count, cycles - 1);
+        }
+    }
+
+    #[test]
+    fn test_timer_overflow() {
+        let mut t = Timer::default();
+        let overflow_ticks = 256 * TIMER_CYCLES_PER_TICK[0];
+        for _ in 0..overflow_ticks {
+            t.increase(1)
+        }
+        assert!(t.did_overflow());
     }
 }
