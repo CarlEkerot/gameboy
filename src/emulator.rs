@@ -42,7 +42,7 @@ impl<'a> Emulator<'a> {
                 let start = SystemTime::now();
                 self.update();
                 let dur = start.elapsed().unwrap();
-                let diff = Duration::new(0, 16_666_667).checked_sub(dur)
+                let diff = Duration::new(0, 1_000_000_000u32 / 60).checked_sub(dur)
                     .unwrap_or_else(|| Duration::new(0, 0));
                 thread::sleep(diff);
             }
