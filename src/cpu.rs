@@ -4,6 +4,7 @@ use instructions::Instruction;
 use definition::{Mnemonic, ImmediateType};
 use errors::*;
 use constants::*;
+use interrupts::*;
 use operations::*;
 use instruction_set::get_definition;
 use std::fmt;
@@ -25,8 +26,6 @@ pub struct CPU {
     pub state: CPUState,
     pub interrupts: bool,
     // Timer components
-    prev_count: u8,
-    count: u8,
     timer_count: usize,
 }
 
@@ -54,8 +53,6 @@ impl CPU {
             cycles: 0,
             state: CPUState::Running,
             interrupts: true,
-            prev_count: 0,
-            count: 0,
             timer_count: 0,
         }
     }
@@ -114,6 +111,7 @@ impl CPU {
         let instruction_cycles = instruction.definition.cycles[0];
         self.cycles += instruction_cycles;
         self.increase_timer(instruction_cycles);
+        self.execute_interrupts();
         self.pc = self.pc.wrapping_add(instruction.definition.length as u16);
         res
     }
@@ -244,9 +242,35 @@ impl CPU {
         self.ram.store(reg_addr, current | flag);
     }
 
-    pub fn clear_register_flag(&mut self, reg_addr: usize, lag: u8) {
+    pub fn clear_register_flag(&mut self, reg_addr: usize, flag: u8) {
         let current = self.ram.load(reg_addr);
         self.ram.store(reg_addr, current & !flag);
+    }
+
+    pub fn set_interrupt_flag(&mut self, flag: u8) {
+        if !self.interrupts {
+            return
+        }
+        self.set_register_flag(MREG_IF, flag);
+    }
+
+    fn execute_interrupts(&mut self) {
+        // Iterate all interrupt flags
+        for interrupt in INTERRUPTS.iter() {
+            let requested = self.ram.load(MREG_IF) & interrupt.flag != 0;
+            let enabled = self.ram.load(MREG_IE) & interrupt.flag != 0;
+
+            if requested && enabled {
+                // Clear the interrupt
+                self.clear_register_flag(MREG_IF, interrupt.flag);
+
+                // Disable further interrupts
+                self.disable_interrupts();
+
+                // Execute interrupt
+                self.pc = interrupt.handler_addr as u16;
+            }
+        }
     }
 
     pub fn increase_timer(&mut self, cycles: usize) {
@@ -258,7 +282,7 @@ impl CPU {
             return
         }
 
-        cycles_per_tick = TIMER_CYCLES_PER_TICK[(tac & 0b11) as usize];
+        let cycles_per_tick = TIMER_CYCLES_PER_TICK[(tac & 0b11) as usize];
 
         let prev_count = self.ram.load(MREG_TIMA);
         self.timer_count += cycles;
@@ -267,9 +291,9 @@ impl CPU {
             self.ram.store(MREG_TIMA, count);
             self.timer_count %= cycles_per_tick;
 
-            if self.count < prev_count {
+            if count < prev_count {
                 // Set overflow
-                // TODO!
+                self.set_interrupt_flag(INTERRUPT_TIMER.flag);
 
                 // Set contents of TIMA to that of TMA
                 let tma = self.ram.load(MREG_TMA);
@@ -361,10 +385,13 @@ mod tests {
 
     #[test]
     fn test_timer() {
-        for &cycles in TIMER_CYCLES_PER_TICK.iter() {
+        for i in 0..TIMER_CYCLES_PER_TICK.len() {
             let mut mem = Memory::default();
             let mut cpu = CPU::new(mem);
-            cpu.cycles_per_tick = cycles;
+
+            let cycles = TIMER_CYCLES_PER_TICK[i];
+            let flag = (0b100 | i) as u8;
+            cpu.ram.store(MREG_TAC, flag);
 
             for _ in 0..(CLOCK_SPEED - 1) {
                 cpu.increase_timer(1)
@@ -380,9 +407,13 @@ mod tests {
         let mut mem = Memory::default();
         let mut cpu = CPU::new(mem);
         let overflow_ticks = 256 * TIMER_CYCLES_PER_TICK[0];
+        cpu.ram.store(MREG_TAC, 0b100);
         for _ in 0..overflow_ticks {
             cpu.increase_timer(1)
         }
-        assert!(t.did_overflow());
+
+        let flag = INTERRUPT_TIMER.flag;
+        let reg_value = cpu.ram.load(MREG_IF);
+        assert_ne!(reg_value & flag, 0);
     }
 }

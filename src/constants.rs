@@ -111,9 +111,3 @@ pub const TIMER_CYCLES_PER_TICK: [usize; 4] = [
     64,
     256,
 ];
-
-pub const INTERRUPT_VBLANK: u8   = 0b0000_0001;
-pub const INTERRUPT_LCD_STAT: u8 = 0b0000_0010;
-pub const INTERRUPT_TIMER: u8    = 0b0000_0100;
-pub const INTERRUPT_SERIAL: u8   = 0b0000_1000;
-pub const INTERRUPT_JOYPAD: u8   = 0b0001_0000;

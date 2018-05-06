@@ -13,6 +13,7 @@ pub mod cpu;
 pub mod definition;
 pub mod instructions;
 pub mod instruction_set;
+pub mod interrupts;
 pub mod operations;
 pub mod lcd;
 pub mod debugger;
