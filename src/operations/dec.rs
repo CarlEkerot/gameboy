@@ -85,64 +85,64 @@ mod tests {
             execute_instruction(&mut cpu, c, None);
             assert_eq!(cpu.reg[r], 0x10);
         }
+    }
 
-        #[test]
-        fn test_dec_overflow() {
+    #[test]
+    fn test_dec_overflow() {
+        let mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0x00;
+        execute_instruction(&mut cpu, 0x3d, None);
+        assert_eq!(cpu.reg[REG_A], 0xff);
+        assert_eq!(cpu.flag, 0b0000_0000);
+    }
+
+    #[test]
+    fn test_dec_half_carry() {
+        let mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_A] = 0x10;
+        execute_instruction(&mut cpu, 0x3d, None);
+        assert_eq!(cpu.reg[REG_A], 0x0f);
+        assert_eq!(cpu.flag, 0b0010_0000);
+    }
+
+    #[test]
+    fn test_dec_regpair_addr() {
+        let mut mem = Memory::default();
+        mem.store(0xff22, 0x11);
+        let mut cpu = CPU::new(mem);
+        cpu.reg[REG_H] = 0xff;
+        cpu.reg[REG_L] = 0x22;
+        execute_instruction(&mut cpu, 0x35, None);
+        assert_eq!(cpu.ram.load(0xff22), 0x10);
+    }
+
+    #[test]
+    fn test_dec_regpair() {
+        let pairs: [(u16, usize, usize); 3] = [
+            (0x0b, REG_B, REG_C),
+            (0x1b, REG_D, REG_E),
+            (0x2b, REG_H, REG_L),
+        ];
+
+        for &(c, h, l) in pairs.iter() {
             let mut mem = Memory::default();
             let mut cpu = CPU::new(mem);
-            cpu.reg[REG_A] = 0x00;
-            execute_instruction(&mut cpu, 0x3d, None);
-            assert_eq!(cpu.reg[REG_A], 0xff);
-            assert_eq!(cpu.flag, 0b0000_0000);
+            cpu.reg[h] = 0xaa;
+            cpu.reg[l] = 0xbb;
+            execute_instruction(&mut cpu, c, None);
+            assert_eq!(cpu.reg[h], 0xaa);
+            assert_eq!(cpu.reg[l], 0xba);
         }
+    }
 
-        #[test]
-        fn test_dec_half_carry() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
-            cpu.reg[REG_A] = 0x10;
-            execute_instruction(&mut cpu, 0x3d, None);
-            assert_eq!(cpu.reg[REG_A], 0x0f);
-            assert_eq!(cpu.flag, 0b0010_0000);
-        }
-
-        #[test]
-        fn test_dec_regpair_addr() {
-            let mut mem = Memory::default();
-            mem.store(0xff22, 0x11);
-            let mut cpu = CPU::new(mem);
-            cpu.reg[REG_H] = 0xff;
-            cpu.reg[REG_L] = 0x22;
-            execute_instruction(&mut cpu, 0x35, None);
-            assert_eq!(cpu.ram.load(0xff22), 0x10);
-        }
-
-        #[test]
-        fn test_dec_regpair() {
-            let pairs: [(u16, usize, usize); 3] = [
-                (0x0b, REG_B, REG_C),
-                (0x1b, REG_D, REG_E),
-                (0x2b, REG_H, REG_L),
-            ];
-
-            for &(c, h, l) in pairs.iter() {
-                let mut mem = Memory::default();
-                let mut cpu = CPU::new(mem);
-                cpu.reg[h] = 0xaa;
-                cpu.reg[l] = 0xbb;
-                execute_instruction(&mut cpu, c, None);
-                assert_eq!(cpu.reg[h], 0xaa);
-                assert_eq!(cpu.reg[l], 0xba);
-            }
-        }
-
-        #[test]
-        fn test_dec_sp() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
-            cpu.sp = 0xaabb;
-            execute_instruction(&mut cpu, 0x3B, None);
-            assert_eq!(cpu.sp, 0xaaba);
-        }
+    #[test]
+    fn test_dec_sp() {
+        let mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+        cpu.sp = 0xaabb;
+        execute_instruction(&mut cpu, 0x3B, None);
+        assert_eq!(cpu.sp, 0xaaba);
     }
 }

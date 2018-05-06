@@ -33,7 +33,7 @@ mod tests {
 
     #[test]
     fn test_ret() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.sp = 0x1122;
         cpu.disable_interrupts();

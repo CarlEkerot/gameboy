@@ -19,4 +19,5 @@ pub mod lcd;
 pub mod debugger;
 pub mod emulator;
 
+#[cfg(test)]
 mod test_helpers;

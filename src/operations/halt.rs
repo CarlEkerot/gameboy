@@ -26,7 +26,7 @@ mod tests {
 
     #[test]
     fn test_halt() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         execute_instruction(&mut cpu, 0x76, None);
         assert_eq!(cpu.state, CPUState::Halted)

@@ -30,7 +30,7 @@ mod tests {
 
     #[test]
     fn test_scf_no_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         execute_instruction(&mut cpu, 0x37, None);
         assert_eq!(cpu.flag, 0b0001_0000);
@@ -38,7 +38,7 @@ mod tests {
 
     #[test]
     fn test_scf_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.set_flag(FLAG_C);
         execute_instruction(&mut cpu, 0x37, None);

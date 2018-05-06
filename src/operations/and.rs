@@ -81,7 +81,7 @@ mod tests {
 
     #[test]
     fn test_and_zero_with_a() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b0001_1100;
         cpu.reg[REG_B] = 0b0000_0000;
@@ -92,7 +92,7 @@ mod tests {
 
     #[test]
     fn test_and_immediate_with_a() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b0001_1100;
         execute_instruction(&mut cpu, 0xe6, Some(0b0011_1000));

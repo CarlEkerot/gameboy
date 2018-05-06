@@ -5,7 +5,7 @@ pub struct List;
 
 impl Command for List {
     type Item = List;
-    fn parse(cmd: &str) -> Option<Self::Item> {
+    fn parse(_cmd: &str) -> Option<Self::Item> {
         Some(List)
     }
 

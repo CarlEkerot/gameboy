@@ -78,7 +78,7 @@ mod tests {
 
     #[test]
     fn test_swap_reg_zero() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x00;
         execute_instruction(&mut cpu, 0xcb37, None);

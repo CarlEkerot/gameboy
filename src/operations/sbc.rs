@@ -153,7 +153,7 @@ mod tests {
 
     #[test]
     fn test_sbc_reg_from_a_zero() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x01;
         cpu.reg[REG_B] = 0x00;

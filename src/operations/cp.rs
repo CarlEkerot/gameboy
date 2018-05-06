@@ -77,7 +77,7 @@ mod tests {
 
     #[test]
     fn test_cp_immediate_less_than_a() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x9a;
         execute_instruction(&mut cpu, 0xfe, Some(0x11));
@@ -86,7 +86,7 @@ mod tests {
 
     #[test]
     fn test_cp_immediate_greater_than_a() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x9a;
         execute_instruction(&mut cpu, 0xfe, Some(0xd1));

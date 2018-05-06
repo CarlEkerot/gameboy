@@ -30,7 +30,7 @@ mod tests {
 
     #[test]
     fn test_cpl() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b0101_0101;
         execute_instruction(&mut cpu, 0x2f, None);

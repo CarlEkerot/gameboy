@@ -15,7 +15,7 @@ impl Execute for ShiftLeftArithmetic {
             Operand::Register(r) => {
                 let val = cpu.reg[r];
                 let msb = val >> 7;
-                let res = (val << 1) & 0xff;
+                let res = val << 1;
 
                 cpu.reg[r] = res;
 
@@ -28,7 +28,7 @@ impl Execute for ShiftLeftArithmetic {
                 let addr = cpu.read_reg_addr(h, l);
                 let val = cpu.ram.load(addr);
                 let msb = val >> 7;
-                let mut res = (val << 1) & 0xff;
+                let mut res = val << 1;
 
                 cpu.ram.store(addr, res);
 

@@ -46,7 +46,7 @@ mod tests {
 
     #[test]
     fn test_ldh_a_to_immediate_offset_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0xab;
         execute_instruction(&mut cpu, 0xe0, Some(0x22));

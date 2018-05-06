@@ -10,7 +10,7 @@ impl Execute for RotateARightCarry {
     fn execute(_instruction: &Instruction, cpu: &mut CPU) -> Result<()> {
         let val = cpu.reg[REG_A];
         let lsb = val & 0x1;
-        let res = ((val >> 1) & 0xff) | (lsb << 7);
+        let res = (val >> 1) | (lsb << 7);
         cpu.reg[REG_A] = res;
 
         cpu.flag_cond(FLAG_Z, res == 0);
@@ -36,7 +36,7 @@ mod tests {
 
     #[test]
     fn test_rrca_no_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b1111_1110;
         execute_instruction(&mut cpu, 0x0f, None);
@@ -46,7 +46,7 @@ mod tests {
 
     #[test]
     fn test_rrca_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b1111_1111;
         execute_instruction(&mut cpu, 0x0f, None);

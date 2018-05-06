@@ -256,7 +256,7 @@ impl CPU {
 
     fn execute_interrupts(&mut self) {
         // Iterate all interrupt flags
-        for interrupt in INTERRUPTS.iter() {
+        for interrupt in &INTERRUPTS {
             let requested = self.ram.load(MREG_IF) & interrupt.flag != 0;
             let enabled = self.ram.load(MREG_IE) & interrupt.flag != 0;
 
@@ -326,7 +326,7 @@ mod tests {
         let mut mem = Memory::default();
         mem.store(0x100, 0xaf);
 
-        let mut cpu = CPU::new(mem);
+        let cpu = CPU::new(mem);
         let instruction = cpu.current_instruction().unwrap();
 
         assert_eq!(instruction.definition.mnemonic, Mnemonic::XOR);
@@ -340,7 +340,7 @@ mod tests {
         mem.store(0x101, 0xfe);
         mem.store(0x102, 0xff);
 
-        let mut cpu = CPU::new(mem);
+        let cpu = CPU::new(mem);
         let instruction = cpu.current_instruction().unwrap();
 
         assert_eq!(instruction.definition.mnemonic, Mnemonic::LD);
@@ -375,7 +375,7 @@ mod tests {
 
     #[test]
     fn test_stack() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.sp = 0x1122;
         cpu.stack_push(0x12);
@@ -404,7 +404,7 @@ mod tests {
 
     #[test]
     fn test_timer_overflow() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         let overflow_ticks = 256 * TIMER_CYCLES_PER_TICK[0];
         cpu.ram.store(MREG_TAC, 0b100);

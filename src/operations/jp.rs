@@ -66,7 +66,7 @@ mod tests {
 
     #[test]
     fn test_jp_immediate_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         execute_instruction(&mut cpu, 0xc3, Some(0xff22));
         assert_eq!(cpu.pc, 0xff22);
@@ -92,7 +92,7 @@ mod tests {
 
     #[test]
     fn test_jp_regpair_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;

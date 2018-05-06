@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn test_sub_reg_from_a_half_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x7f;
         cpu.reg[REG_B] = 0x01;
@@ -114,7 +114,7 @@ mod tests {
 
     #[test]
     fn test_sub_reg_from_a_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x80;
         cpu.reg[REG_B] = 0x81;
@@ -125,7 +125,7 @@ mod tests {
 
     #[test]
     fn test_sub_reg_from_a_zero() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x00;
         cpu.reg[REG_B] = 0x00;
@@ -136,7 +136,7 @@ mod tests {
 
     #[test]
     fn test_sub_immediate_from_a() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x9a;
         execute_instruction(&mut cpu, 0xd6, Some(0x11));

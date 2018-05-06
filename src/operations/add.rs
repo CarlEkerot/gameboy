@@ -14,65 +14,65 @@ impl Execute for Add {
 
         match (dst, src) {
             (&Operand::Register(r1), &Operand::Register(r2)) => {
-                let a = cpu.reg[r1];
-                let b = cpu.reg[r2];
-                let val = a.wrapping_add(b);
+                let op1 = cpu.reg[r1];
+                let op2 = cpu.reg[r2];
+                let val = op1.wrapping_add(op2);
                 cpu.reg[r1] = val;
 
                 cpu.flag_cond(FLAG_Z, val == 0);
                 cpu.clear_flag(FLAG_N);
-                cpu.set_half_carry(a as usize, b as usize);
-                cpu.set_carry(a as usize, b as usize);
+                cpu.set_half_carry(op1 as usize, op2 as usize);
+                cpu.set_carry(op1 as usize, op2 as usize);
             },
             (&Operand::Register(r), &Operand::RegisterPairAddr(h, l)) => {
-                let a = cpu.reg[r];
+                let op1 = cpu.reg[r];
                 let addr = cpu.read_reg_addr(h, l);
-                let b = cpu.ram.load(addr);
-                let val = a.wrapping_add(b);
+                let op2 = cpu.ram.load(addr);
+                let val = op1.wrapping_add(op2);
                 cpu.reg[r] = val;
 
                 cpu.flag_cond(FLAG_Z, val == 0);
                 cpu.clear_flag(FLAG_N);
-                cpu.set_half_carry(a as usize, b as usize);
-                cpu.set_carry(a as usize, b as usize);
+                cpu.set_half_carry(op1 as usize, op2 as usize);
+                cpu.set_carry(op1 as usize, op2 as usize);
             },
             (&Operand::Register(r), &Operand::Immediate(BYTE)) => {
-                let a = cpu.reg[r];
-                let b = instruction.get_immediate_u8()?;
-                let val = a.wrapping_add(b);
+                let op1 = cpu.reg[r];
+                let op2 = instruction.get_immediate_u8()?;
+                let val = op1.wrapping_add(op2);
                 cpu.reg[r] = val;
 
                 cpu.flag_cond(FLAG_Z, val == 0);
                 cpu.clear_flag(FLAG_N);
-                cpu.set_half_carry(a as usize, b as usize);
-                cpu.set_carry(a as usize, b as usize);
+                cpu.set_half_carry(op1 as usize, op2 as usize);
+                cpu.set_carry(op1 as usize, op2 as usize);
             },
             (&Operand::RegisterPair(h1, l1), &Operand::RegisterPair(h2, l2)) => {
-                let a = cpu.read_reg_short(h1, l1);
-                let b = cpu.read_reg_short(h2, l2);
-                cpu.store_reg_short(h1, l1, a.wrapping_add(b));
+                let op1 = cpu.read_reg_short(h1, l1);
+                let op2 = cpu.read_reg_short(h2, l2);
+                cpu.store_reg_short(h1, l1, op1.wrapping_add(op2));
 
                 cpu.clear_flag(FLAG_N);
 
                 // 16 bit carry
-                cpu.set_half_carry((a >> 8) as usize, (b >> 8) as usize);
-                cpu.set_carry((a >> 8) as usize, (b >> 8) as usize);
+                cpu.set_half_carry((op1 >> 8) as usize, (op2 >> 8) as usize);
+                cpu.set_carry((op1 >> 8) as usize, (op2 >> 8) as usize);
             },
             (&Operand::RegisterPair(h, l), &Operand::SP) => {
-                let a = cpu.read_reg_short(h, l);
-                let b = cpu.sp;
-                cpu.store_reg_short(h, l, a.wrapping_add(b));
+                let op1 = cpu.read_reg_short(h, l);
+                let op2 = cpu.sp;
+                cpu.store_reg_short(h, l, op1.wrapping_add(op2));
 
                 cpu.clear_flag(FLAG_N);
-                cpu.set_half_carry((a >> 8) as usize, (b >> 8) as usize);
-                cpu.set_carry((a >> 8) as usize, (b >> 8) as usize);
+                cpu.set_half_carry((op1 >> 8) as usize, (op2 >> 8) as usize);
+                cpu.set_carry((op1 >> 8) as usize, (op2 >> 8) as usize);
             },
             (&Operand::SP, &Operand::Offset(BYTE)) => {
-                let a = cpu.sp;
-                let b = instruction.get_immediate_i8()?;
+                let op1 = cpu.sp;
+                let op2 = instruction.get_immediate_i8()?;
 
                 // TODO: Check this. Danger danger
-                cpu.sp = (a as i32 + b as i32) as u16;
+                cpu.sp = (op1 as i32 + op2 as i32) as u16;
                 cpu.clear_flag(FLAG_Z);
                 cpu.clear_flag(FLAG_N);
             },
@@ -128,7 +128,7 @@ mod tests {
 
     #[test]
     fn test_add_reg_to_a_half_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x08;
         cpu.reg[REG_B] = 0x09;
@@ -139,7 +139,7 @@ mod tests {
 
     #[test]
     fn test_add_reg_to_a_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x80;
         cpu.reg[REG_B] = 0x81;
@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn test_add_reg_to_a_zero() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x00;
         cpu.reg[REG_B] = 0x00;
@@ -161,7 +161,7 @@ mod tests {
 
     #[test]
     fn test_add_immediate_to_a() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x9a;
         execute_instruction(&mut cpu, 0xc6, Some(0x11));
@@ -210,7 +210,7 @@ mod tests {
 
     #[test]
     fn test_add_regpair_to_hl_half_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_H] = 0x08;
         cpu.reg[REG_L] = 0x02;
@@ -224,7 +224,7 @@ mod tests {
 
     #[test]
     fn test_add_regpair_to_hl_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_H] = 0x80;
         cpu.reg[REG_L] = 0x02;
@@ -238,7 +238,7 @@ mod tests {
 
     #[test]
     fn test_add_sp_to_hl() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_H] = 0x01;
         cpu.reg[REG_L] = 0x02;

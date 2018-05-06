@@ -23,7 +23,7 @@ pub const LCD_PIXELS_X: usize = 160;
 pub const LCD_PIXELS_Y: usize = 144;
 pub const LCD_BYTES_X: usize = 20;
 pub const LCD_BYTES_Y: usize = 18;
-pub const LCD_TITLE: &'static str = "Gameboy";
+pub const LCD_TITLE: &str = "Gameboy";
 
 pub const MREG_P1: usize = 0xff00;
 pub const MREG_SB: usize = 0xff01;
@@ -100,9 +100,9 @@ pub const MREG_PCM12: usize = 0xff76;
 pub const MREG_PCM34: usize = 0xff77;
 pub const MREG_IE: usize = 0xffff;
 
-pub const CLOCK_SPEED: usize = 4194304;
+pub const CLOCK_SPEED: usize = 4_194_304;
 pub const FRAME_RATE: usize = 60;
-pub const H_SYNC: usize = 9198000;
+pub const H_SYNC: usize = 9_198_000;
 pub const V_SYNC: usize = 60;
 
 pub const TIMER_CYCLES_PER_TICK: [usize; 4] = [

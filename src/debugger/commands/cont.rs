@@ -5,7 +5,7 @@ pub struct Continue;
 
 impl Command for Continue {
     type Item = Continue;
-    fn parse(cmd: &str) -> Option<Self::Item> {
+    fn parse(_cmd: &str) -> Option<Self::Item> {
         Some(Continue)
     }
 

@@ -50,7 +50,7 @@ mod tests {
 
     #[test]
     fn test_daa_adjusted() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b1010_0111;
         execute_instruction(&mut cpu, 0x27, None);
@@ -60,7 +60,7 @@ mod tests {
 
     #[test]
     fn test_daa_low() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b0000_1111;
         execute_instruction(&mut cpu, 0x27, None);
@@ -70,7 +70,7 @@ mod tests {
 
     #[test]
     fn test_daa_high() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b1010_1010;
         execute_instruction(&mut cpu, 0x27, None);

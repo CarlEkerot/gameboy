@@ -5,7 +5,7 @@ pub struct Restart;
 
 impl Command for Restart {
     type Item = Restart;
-    fn parse(cmd: &str) -> Option<Self::Item> {
+    fn parse(_cmd: &str) -> Option<Self::Item> {
         Some(Restart)
     }
 

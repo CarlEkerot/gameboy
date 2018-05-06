@@ -55,7 +55,7 @@ mod tests {
 
     #[test]
     fn test_call_immediate_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.pc = 0x2233;
         cpu.sp = 0x1122;

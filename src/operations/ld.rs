@@ -235,7 +235,7 @@ mod tests {
 
     #[test]
     fn test_ld_byte_to_regpair_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;
@@ -291,7 +291,7 @@ mod tests {
 
     #[test]
     fn test_ld_a_to_immediate_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0xab;
         execute_instruction(&mut cpu, 0xea, Some(0xff22));
@@ -310,7 +310,7 @@ mod tests {
 
     #[test]
     fn test_ld_a_to_c_addr_offset() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0xab;
         cpu.reg[REG_C] = 0x22;
@@ -337,7 +337,7 @@ mod tests {
 
     #[test]
     fn test_ld_short_to_sp() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         execute_instruction(&mut cpu, 0x31, Some(0xaabb));
         assert_eq!(cpu.sp, 0xaabb);
@@ -345,7 +345,7 @@ mod tests {
 
     #[test]
     fn test_ld_hl_to_sp() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_H] = 0xaa;
         cpu.reg[REG_L] = 0xbb;
@@ -355,7 +355,7 @@ mod tests {
 
     #[test]
     fn test_ld_sp_offset_to_hl() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.sp = 0xff00;
         execute_instruction(&mut cpu, 0xf8, Some(0x22));
@@ -365,7 +365,7 @@ mod tests {
 
     #[test]
     fn test_ld_sp_to_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.sp = 0xaabb;
         execute_instruction(&mut cpu, 0x08, Some(0xff22));

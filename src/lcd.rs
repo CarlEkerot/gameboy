@@ -61,24 +61,3 @@ impl LCD {
 
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // #[test]
-    fn run() {
-        let mut l = LCD::new();
-        l.set_pixel(10, 10, Shade::Shade0);
-        l.set_pixel(10, 11, Shade::Shade0);
-        l.set_pixel(10, 12, Shade::Shade0);
-        l.set_pixel(10, 13, Shade::Shade0);
-        l.set_pixel(10, 14, Shade::Shade0);
-        l.set_pixel(10, 15, Shade::Shade0);
-        l.set_pixel(11, 15, Shade::Shade0);
-        l.set_pixel(12, 15, Shade::Shade0);
-        l.set_pixel(13, 15, Shade::Shade0);
-        l.set_pixel(14, 15, Shade::Shade0);
-        l.show();
-    }
-}

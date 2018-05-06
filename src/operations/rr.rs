@@ -15,7 +15,7 @@ impl Execute for RotateRight {
             Operand::Register(r) => {
                 let val = cpu.reg[r];
                 let lsb = val & 0x1;
-                let mut res = (val >> 1) & 0xff;
+                let mut res = val >> 1;
 
                 if cpu.flag_is_set(FLAG_C) {
                     res |= 1 << 7;
@@ -32,7 +32,7 @@ impl Execute for RotateRight {
                 let addr = cpu.read_reg_addr(h, l);
                 let val = cpu.ram.load(addr);
                 let lsb = val & 0x1;
-                let mut res = (val >> 1) & 0xff;
+                let mut res = val >> 1;
 
                 if cpu.flag_is_set(FLAG_C) {
                     res |= 1 << 7;

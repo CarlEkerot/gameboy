@@ -1,4 +1,4 @@
 pub mod commands;
-pub mod debugger;
+pub mod dbg;
 
-pub use self::debugger::Debugger;
+pub use self::dbg::Debugger;

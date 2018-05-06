@@ -60,7 +60,7 @@ mod tests {
 
     #[test]
     fn test_ldi_a_to_hl_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0xab;
         cpu.reg[REG_H] = 0xff;

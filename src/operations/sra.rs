@@ -18,7 +18,7 @@ impl Execute for ShiftRightArithmetic {
                 // TODO: Docs says "MSB doesn't change"!
                 let msb_mask = val & 0x80;
                 let lsb = val & 0x1;
-                let res = ((val >> 1) & 0xff) | msb_mask;
+                let res = (val >> 1) | msb_mask;
 
                 cpu.reg[r] = res;
 
@@ -32,7 +32,7 @@ impl Execute for ShiftRightArithmetic {
                 let val = cpu.ram.load(addr);
                 let msb_mask = val & 0x80;
                 let lsb = val & 0x1;
-                let res = ((val >> 1) & 0xff) | msb_mask;
+                let res = (val >> 1) | msb_mask;
 
                 cpu.ram.store(addr, res);
 

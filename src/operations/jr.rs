@@ -50,7 +50,7 @@ mod tests {
 
     #[test]
     fn test_jr_immediate_positive_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.pc= 0xff22;
         execute_instruction(&mut cpu, 0x18, Some(0x10));
@@ -59,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_jr_immediate_negative_addr() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.pc= 0xff22;
         execute_instruction(&mut cpu, 0x18, Some(-0x10i8 as u16));

@@ -82,7 +82,7 @@ mod tests {
 
     #[test]
     fn test_xor_immediate_with_a() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b0001_1100;
         execute_instruction(&mut cpu, 0xee, Some(0b0011_1000));

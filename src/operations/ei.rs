@@ -26,7 +26,7 @@ mod tests {
 
     #[test]
     fn test_enable_interrupts() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.interrupts = false;
         execute_instruction(&mut cpu, 0xfb, None);

@@ -89,7 +89,7 @@ mod tests {
 
     #[test]
     fn test_inc_overflow() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0xff;
         execute_instruction(&mut cpu, 0x3c, None);
@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn test_inc_half_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0x0f;
         execute_instruction(&mut cpu, 0x3c, None);
@@ -139,7 +139,7 @@ mod tests {
 
     #[test]
     fn test_inc_sp() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.sp = 0xaabb;
         execute_instruction(&mut cpu, 0x33, None);

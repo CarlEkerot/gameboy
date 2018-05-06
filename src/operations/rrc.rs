@@ -15,7 +15,7 @@ impl Execute for RotateRightCarry {
             Operand::Register(r) => {
                 let val = cpu.reg[r];
                 let lsb = val & 0x1;
-                let res = ((val >> 1) & 0xff) | (lsb << 7);
+                let res = (val >> 1) | (lsb << 7);
 
                 cpu.reg[r] = res;
 
@@ -28,7 +28,7 @@ impl Execute for RotateRightCarry {
                 let addr = cpu.read_reg_addr(h, l);
                 let val = cpu.ram.load(addr);
                 let lsb = val & 0x1;
-                let res = ((val >> 1) & 0xff) | (lsb << 7);
+                let res = (val >> 1) | (lsb << 7);
                 cpu.ram.store(addr, res);
 
                 cpu.flag_cond(FLAG_Z, res == 0);

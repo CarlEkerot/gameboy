@@ -10,7 +10,7 @@ impl Execute for RotateALeft {
     fn execute(_instruction: &Instruction, cpu: &mut CPU) -> Result<()> {
         let val = cpu.reg[REG_A];
         let msb = val >> 7;
-        let mut res = (val << 1) & 0xff;
+        let mut res = val << 1;
 
         if cpu.flag_is_set(FLAG_C) {
             res |= 1;
@@ -41,7 +41,7 @@ mod tests {
 
     #[test]
     fn test_rla_no_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b0111_1111;
         execute_instruction(&mut cpu, 0x17, None);
@@ -51,7 +51,7 @@ mod tests {
 
     #[test]
     fn test_rla_carry() {
-        let mut mem = Memory::default();
+        let mem = Memory::default();
         let mut cpu = CPU::new(mem);
         cpu.reg[REG_A] = 0b1111_1111;
         execute_instruction(&mut cpu, 0x17, None);

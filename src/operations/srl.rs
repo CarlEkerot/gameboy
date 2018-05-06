@@ -15,7 +15,7 @@ impl Execute for ShiftRightLogical {
             Operand::Register(r) => {
                 let val = cpu.reg[r];
                 let lsb = val & 0x1;
-                let res = (val >> 1) & 0xff;
+                let res = val >> 1;
 
                 cpu.reg[r] = res;
 
@@ -28,7 +28,7 @@ impl Execute for ShiftRightLogical {
                 let addr = cpu.read_reg_addr(h, l);
                 let val = cpu.ram.load(addr);
                 let lsb = val & 0x1;
-                let res = (val >> 1) & 0xff;
+                let res = val >> 1;
 
                 cpu.ram.store(addr, res);
 

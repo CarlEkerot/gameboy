@@ -7,11 +7,11 @@ pub struct Exit;
 
 impl Command for Exit {
     type Item = Exit;
-    fn parse(cmd: &str) -> Option<Self::Item> {
+    fn parse(_cmd: &str) -> Option<Self::Item> {
         Some(Exit)
     }
 
-    fn execute(self, debugger: &mut Debugger) {
+    fn execute(self, _debugger: &mut Debugger) {
         println!("Exiting...");
         process::exit(0);
     }
