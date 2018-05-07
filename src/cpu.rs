@@ -25,8 +25,8 @@ pub struct CPU {
     pub cycles: usize,
     pub state: CPUState,
     pub interrupts: bool,
-    // Timer components
     timer_count: usize,
+    divider_count: u8,
 }
 
 impl fmt::Debug for CPU {
@@ -54,6 +54,7 @@ impl CPU {
             state: CPUState::Running,
             interrupts: true,
             timer_count: 0,
+            divider_count: 0,
         }
     }
 
@@ -111,6 +112,7 @@ impl CPU {
         let instruction_cycles = instruction.definition.cycles[0];
         self.cycles += instruction_cycles;
         self.increase_timer(instruction_cycles);
+        self.increase_divider(instruction_cycles);
         self.execute_interrupts();
         self.pc = self.pc.wrapping_add(instruction.definition.length as u16);
         res
@@ -302,6 +304,15 @@ impl CPU {
         }
     }
 
+    pub fn increase_divider(&mut self, cycles: usize) {
+        let prev_count = self.divider_count;
+        self.divider_count =  self.divider_count.wrapping_add(cycles as u8);
+        if self.divider_count < prev_count {
+            let div = self.ram.load(MREG_DIV);
+            self.ram.store(MREG_DIV, div.wrapping_add(1));
+        }
+    }
+
     pub fn reset(&mut self) {
         self.reg = [0; 8];
         self.sp = 0;
@@ -415,5 +426,18 @@ mod tests {
         let flag = INTERRUPT_TIMER.flag;
         let reg_value = cpu.ram.load(MREG_IF);
         assert_ne!(reg_value & flag, 0);
+    }
+
+    #[test]
+    fn test_divider() {
+        let mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+
+        for i in 0..(256 * 10) {
+            cpu.increase_divider(1)
+        }
+
+        let div = cpu.ram.load(MREG_DIV);
+        assert_eq!(div, 10);
     }
 }
