@@ -433,11 +433,24 @@ mod tests {
         let mem = Memory::default();
         let mut cpu = CPU::new(mem);
 
-        for i in 0..(256 * 10) {
+        for _ in 0..(256 * 10) {
             cpu.increase_divider(1)
         }
 
         let div = cpu.ram.load(MREG_DIV);
         assert_eq!(div, 10);
+    }
+
+    #[test]
+    fn test_divider_overflow() {
+        let mem = Memory::default();
+        let mut cpu = CPU::new(mem);
+
+        for _ in 0..(256 * 257) {
+            cpu.increase_divider(1)
+        }
+
+        let div = cpu.ram.load(MREG_DIV);
+        assert_eq!(div, 1);
     }
 }

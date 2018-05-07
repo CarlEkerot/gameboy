@@ -1,4 +1,4 @@
-use constants::BYTE;
+use constants::*;
 use errors::*;
 use std::fmt;
 use std::io::Read;
@@ -24,7 +24,10 @@ impl Memory {
         assert!(addr < self.size,
                 "Attempt to store outside of memory bound. {:04x} > {:04x}",
                 addr, self.size);
-        self.mem[addr] = value;
+        self.mem[addr] = match addr {
+            MREG_DIV => 0,
+            _ => value,
+        };
     }
 
     pub fn load(&self, addr: usize) -> u8 {
@@ -73,7 +76,6 @@ impl fmt::Debug for Memory {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use constants::*;
     use std::fs::File;
 
     #[test]
@@ -100,5 +102,14 @@ mod tests {
         assert_eq!(mem.load(0x00), 0x31);
         assert_eq!(mem.load(0x01), 0xfe);
         assert_eq!(mem.load(0x02), 0xff);
+    }
+
+    #[test]
+    fn test_write_to_reset() {
+        let mut mem = Memory::default();
+        mem.mem[MREG_DIV] = 0xab;
+        mem.store(MREG_DIV, 0xbb);
+
+        assert_eq!(mem.load(MREG_DIV), 0);
     }
 }
