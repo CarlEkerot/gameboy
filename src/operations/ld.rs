@@ -21,16 +21,16 @@ impl Execute for Load {
             },
             (&Operand::Register(r), &Operand::Address(SHORT)) => {
                 let addr = instruction.get_immediate_usize()?;
-                cpu.reg[r] = cpu.ram.load(addr);
+                cpu.reg[r] = cpu.load_mem(addr);
             },
             (&Operand::Register(r), &Operand::RegisterPairAddr(h, l)) => {
                 let addr = cpu.read_reg_addr(h, l);
-                cpu.reg[r] = cpu.ram.load(addr);
+                cpu.reg[r] = cpu.load_mem(addr);
             },
             (&Operand::Register(r1), &Operand::RegisterAddr(r2)) => {
                 let offset = cpu.reg[r2] as usize;
                 let addr = OFFSET_BASE + offset;
-                cpu.reg[r1] = cpu.ram.load(addr);
+                cpu.reg[r1] = cpu.load_mem(addr);
             },
             (&Operand::RegisterPair(h, l), &Operand::Immediate(SHORT)) => {
                 cpu.store_reg_short(h, l, instruction.get_immediate_u16()?);
@@ -52,27 +52,27 @@ impl Execute for Load {
             (&Operand::RegisterAddr(r1), &Operand::Register(r2)) => {
                 let offset = cpu.reg[r1] as usize;
                 let addr = OFFSET_BASE + offset;
-                cpu.ram.store(addr, cpu.reg[r2]);
+                cpu.store_mem(addr, cpu.reg[r2]);
             },
             (&Operand::RegisterPairAddr(h, l), &Operand::Register(r)) => {
                 let addr = cpu.read_reg_addr(h, l);
-                cpu.ram.store(addr, cpu.reg[r]);
+                cpu.store_mem(addr, cpu.reg[r]);
             },
             (&Operand::RegisterPairAddr(h, l), &Operand::Immediate(BYTE)) => {
                 let addr = cpu.read_reg_addr(h, l);
                 let val = instruction.get_immediate_u8()?;
-                cpu.ram.store(addr, val);
+                cpu.store_mem(addr, val);
             },
             (&Operand::Address(SHORT), &Operand::SP) => {
                 // Stores two bytes in memory
                 let addr = instruction.get_immediate_usize()?;
-                cpu.ram.store(addr, (cpu.sp & 0xff) as u8);
-                cpu.ram.store(addr + 1, (cpu.sp >> 8) as u8);
+                cpu.store_mem(addr, (cpu.sp & 0xff) as u8);
+                cpu.store_mem(addr + 1, (cpu.sp >> 8) as u8);
             },
             (&Operand::Address(SHORT), &Operand::Register(r)) => {
                 // Stores two bytes in memory
                 let addr = instruction.get_immediate_usize()?;
-                cpu.ram.store(addr, cpu.reg[r]);
+                cpu.store_mem(addr, cpu.reg[r]);
             },
             (&Operand::SP, &Operand::Immediate(SHORT)) => {
                 cpu.sp = instruction.get_immediate_u16()?;
@@ -91,10 +91,8 @@ impl Execute for Load {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -114,8 +112,7 @@ mod tests {
             (0x2e, REG_L),
         ];
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             execute_instruction(&mut cpu, c, Some(0xab));
             assert_eq!(cpu.reg[r], 0xab);
         }
@@ -175,8 +172,7 @@ mod tests {
             (0x6d, REG_L, REG_L),
         ];
         for &(c, dst, src) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[src] = 0xab;
             execute_instruction(&mut cpu, c, None);
             assert_eq!(cpu.reg[dst], 0xab);
@@ -196,9 +192,8 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            mem.store(0xff22, 0xab);
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
+            cpu.store_mem(0xff22, 0xab);
             cpu.reg[REG_H] = 0xff;
             cpu.reg[REG_L] = 0x22;
             execute_instruction(&mut cpu, c, None);
@@ -218,8 +213,7 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             let ex = match r {
                 REG_H => 0xff,
                 REG_L => 0x22,
@@ -229,18 +223,17 @@ mod tests {
             cpu.reg[REG_H] = 0xff;
             cpu.reg[REG_L] = 0x22;
             execute_instruction(&mut cpu, c, None);
-            assert_eq!(cpu.ram.load(0xff22), ex);
+            assert_eq!(cpu.load_mem(0xff22), ex);
         }
     }
 
     #[test]
     fn test_ld_byte_to_regpair_addr() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;
         execute_instruction(&mut cpu, 0x36, Some(0xab));
-        assert_eq!(cpu.ram.load(0xff22), 0xab);
+        assert_eq!(cpu.load_mem(0xff22), 0xab);
     }
 
     #[test]
@@ -251,9 +244,8 @@ mod tests {
         ];
 
         for &(c, h, l) in pairs.iter() {
-            let mut mem = Memory::default();
-            mem.store(0xff22, 0xab);
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
+            cpu.store_mem(0xff22, 0xab);
             cpu.reg[h] = 0xff;
             cpu.reg[l] = 0x22;
             execute_instruction(&mut cpu, c, None);
@@ -263,9 +255,8 @@ mod tests {
 
     #[test]
     fn test_ld_immediate_addr_to_a() {
-        let mut mem = Memory::default();
-        mem.store(0xff22, 0xab);
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
+        cpu.store_mem(0xff22, 0xab);
         execute_instruction(&mut cpu, 0xfa, Some(0xff22));
         assert_eq!(cpu.reg[REG_A], 0xab);
     }
@@ -279,30 +270,27 @@ mod tests {
         ];
 
         for &(c, h, l) in pairs.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[h] = 0xff;
             cpu.reg[l] = 0x22;
             cpu.reg[REG_A] = 0xab;
             execute_instruction(&mut cpu, c, None);
-            assert_eq!(cpu.ram.load(0xff22), 0xab);
+            assert_eq!(cpu.load_mem(0xff22), 0xab);
         }
     }
 
     #[test]
     fn test_ld_a_to_immediate_addr() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0xab;
         execute_instruction(&mut cpu, 0xea, Some(0xff22));
-        assert_eq!(cpu.ram.load(0xff22), 0xab);
+        assert_eq!(cpu.load_mem(0xff22), 0xab);
     }
 
     #[test]
     fn test_ld_c_addr_offset_to_a() {
-        let mut mem = Memory::default();
-        mem.store(0xff22, 0xab);
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
+        cpu.store_mem(0xff22, 0xab);
         cpu.reg[REG_C] = 0x22;
         execute_instruction(&mut cpu, 0xf2, None);
         assert_eq!(cpu.reg[REG_A], 0xab);
@@ -310,12 +298,11 @@ mod tests {
 
     #[test]
     fn test_ld_a_to_c_addr_offset() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0xab;
         cpu.reg[REG_C] = 0x22;
         execute_instruction(&mut cpu, 0xe2, None);
-        assert_eq!(cpu.ram.load(0xff22), 0xab);
+        assert_eq!(cpu.load_mem(0xff22), 0xab);
     }
 
     #[test]
@@ -327,8 +314,7 @@ mod tests {
         ];
 
         for &(c, h, l) in pairs.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             execute_instruction(&mut cpu, c, Some(0xaabb));
             assert_eq!(cpu.reg[h], 0xaa);
             assert_eq!(cpu.reg[l], 0xbb);
@@ -337,16 +323,14 @@ mod tests {
 
     #[test]
     fn test_ld_short_to_sp() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         execute_instruction(&mut cpu, 0x31, Some(0xaabb));
         assert_eq!(cpu.sp, 0xaabb);
     }
 
     #[test]
     fn test_ld_hl_to_sp() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_H] = 0xaa;
         cpu.reg[REG_L] = 0xbb;
         execute_instruction(&mut cpu, 0xf9, None);
@@ -355,8 +339,7 @@ mod tests {
 
     #[test]
     fn test_ld_sp_offset_to_hl() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.sp = 0xff00;
         execute_instruction(&mut cpu, 0xf8, Some(0x22));
         assert_eq!(cpu.reg[REG_H], 0xff);
@@ -365,11 +348,10 @@ mod tests {
 
     #[test]
     fn test_ld_sp_to_addr() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.sp = 0xaabb;
         execute_instruction(&mut cpu, 0x08, Some(0xff22));
-        assert_eq!(cpu.ram.load(0xff22), 0xbb);
-        assert_eq!(cpu.ram.load(0xff23), 0xaa);
+        assert_eq!(cpu.load_mem(0xff22), 0xbb);
+        assert_eq!(cpu.load_mem(0xff23), 0xaa);
     }
 }

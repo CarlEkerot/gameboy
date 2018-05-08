@@ -25,7 +25,7 @@ impl Command for Print {
     fn execute(self, debugger: &mut Debugger) {
         match self.0 {
             PrintType::PrintByte => {
-                let val = debugger.cpu.ram.load(self.1 as usize);
+                let val = debugger.cpu.load_mem(self.1 as usize);
                 println!("${:04x}: 0x{:02x}", self.1, val)
             },
         }

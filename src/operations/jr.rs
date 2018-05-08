@@ -37,10 +37,8 @@ impl Execute for JumpRelative {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -50,8 +48,7 @@ mod tests {
 
     #[test]
     fn test_jr_immediate_positive_addr() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.pc= 0xff22;
         execute_instruction(&mut cpu, 0x18, Some(0x10));
         assert_eq!(cpu.pc, 0xff32 + 2);
@@ -59,8 +56,7 @@ mod tests {
 
     #[test]
     fn test_jr_immediate_negative_addr() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.pc= 0xff22;
         execute_instruction(&mut cpu, 0x18, Some(-0x10i8 as u16));
         assert_eq!(cpu.pc, 0xff12 + 2);
@@ -76,8 +72,7 @@ mod tests {
         ];
 
         for &(c, f, s) in flag_set_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.pc= 0xff22;
             cpu.flag_cond(f, s);
             execute_instruction(&mut cpu, c, Some(0x10));

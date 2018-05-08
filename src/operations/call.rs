@@ -42,10 +42,8 @@ impl Execute for Call {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -55,14 +53,13 @@ mod tests {
 
     #[test]
     fn test_call_immediate_addr() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.pc = 0x2233;
         cpu.sp = 0x1122;
         execute_instruction(&mut cpu, 0xcd, Some(0xff22));
         assert_eq!(cpu.pc, 0xff22);
-        assert_eq!(cpu.ram.load(0x1120), 0x22);
-        assert_eq!(cpu.ram.load(0x1121), 0x36);
+        assert_eq!(cpu.load_mem(0x1120), 0x22);
+        assert_eq!(cpu.load_mem(0x1121), 0x36);
     }
 
     #[test]
@@ -75,15 +72,14 @@ mod tests {
         ];
 
         for &(c, f, s) in flag_set_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.pc = 0x2233;
             cpu.sp = 0x1122;
             cpu.flag_cond(f, s);
             execute_instruction(&mut cpu, c, Some(0xff22));
             assert_eq!(cpu.pc, 0xff22);
-            assert_eq!(cpu.ram.load(0x1120), 0x22);
-            assert_eq!(cpu.ram.load(0x1121), 0x36);
+            assert_eq!(cpu.load_mem(0x1120), 0x22);
+            assert_eq!(cpu.load_mem(0x1121), 0x36);
         }
     }
 }

@@ -1,24 +1,30 @@
 use constants::*;
 use cpu::CPU;
+use timer::Timer;
 use std::fs::File;
 use memory::Memory;
 use std::time::SystemTime;
 use std::time::Duration;
 use std::thread;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 pub struct Emulator<'a> {
     cpu: CPU,
+    timer: Timer,
     pub rom: &'a File,
 }
 
 impl<'a> Emulator<'a> {
     pub fn new(rom: &'a mut File) -> Self {
-        let mut mem = Memory::default();
-        let bytes_read = mem.load_rom(rom).unwrap();
+        let mem = Rc::new(RefCell::new(Memory::default()));
+
+        let bytes_read = mem.borrow_mut().load_rom(rom).unwrap();
         println!("Loaded {} byte rom", bytes_read);
 
         Emulator {
-            cpu: CPU::new(mem),
+            cpu: CPU::new(Rc::clone(&mem)),
+            timer: Timer::new(Rc::clone(&mem)),
             rom,
         }
     }
@@ -29,8 +35,9 @@ impl<'a> Emulator<'a> {
 
         while cycle_count < cycles_per_frame {
             let instruction = self.cpu.execute_next();
-            let cycles = instruction.definition.cycles;
-            cycle_count += cycles[0];
+            let cycles = instruction.definition.cycles[0];
+            self.timer.increase(cycles);
+            cycle_count += cycles;
         }
         // self.lcd.update_frame();
     }

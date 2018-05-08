@@ -25,7 +25,7 @@ impl Execute for Bit {
             },
             (&Operand::RegisterPairAddr(h, l), &Operand::Bit(b)) => {
                 let addr = cpu.read_reg_addr(h, l);
-                let val = cpu.ram.load(addr);
+                let val = cpu.load_mem(addr);
                 let test_bit = 1u8 << b;
 
                 cpu.flag_cond(FLAG_Z, val & test_bit == 0);
@@ -43,10 +43,8 @@ impl Execute for Bit {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -68,8 +66,7 @@ mod tests {
 
         for bit in 0..8 {
             for &(c, r) in reg_codes.iter() {
-                let mut mem = Memory::default();
-                let mut cpu = CPU::new(mem);
+                let mut cpu = test_cpu();
                 cpu.reg[r] = 1u8 << bit;
                 execute_instruction(&mut cpu, c + 8 * bit, None);
                 assert_eq!(cpu.flag, 0b0010_0000);
@@ -83,14 +80,13 @@ mod tests {
     #[test]
     fn test_bit_regpair_addr() {
         for bit in 0..8 {
-            let mut mem = Memory::default();
-            mem.store(0xff22, 1u8 << bit);
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
+            cpu.store_mem(0xff22, 1u8 << bit);
             cpu.reg[REG_H] = 0xff;
             cpu.reg[REG_L] = 0x22;
             execute_instruction(&mut cpu, 0xcb46 + 8 * bit, None);
             assert_eq!(cpu.flag, 0b0010_0000);
-            cpu.ram.store(0xff22, 0);
+            cpu.store_mem(0xff22, 0);
             execute_instruction(&mut cpu, 0xcb46 + 8 * bit, None);
             assert_eq!(cpu.flag, 0b1010_0000);
         }

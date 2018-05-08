@@ -4,6 +4,8 @@ use std::fs::File;
 use cpu::CPU;
 use memory::Memory;
 use debugger::commands::*;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 pub struct Debugger<'a> {
     pub cpu: CPU,
@@ -14,12 +16,12 @@ pub struct Debugger<'a> {
 
 impl<'a> Debugger<'a> {
     pub fn new(rom: &'a mut File) -> Self {
-        let mut mem = Memory::default();
-        let bytes_read = mem.load_rom(rom).unwrap();
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        let bytes_read = mem.borrow_mut().load_rom(rom).unwrap();
         println!("Loaded {} byte rom", bytes_read);
 
         Debugger {
-            cpu: CPU::new(mem),
+            cpu: CPU::new(Rc::clone(&mem)),
             rom,
             breakpoints: vec![],
             prev_cmd: String::from("n")

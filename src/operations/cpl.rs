@@ -17,10 +17,8 @@ impl Execute for ComplementA {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -30,8 +28,7 @@ mod tests {
 
     #[test]
     fn test_cpl() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0b0101_0101;
         execute_instruction(&mut cpu, 0x2f, None);
         assert_eq!(cpu.reg[REG_A], 0b1010_1010);

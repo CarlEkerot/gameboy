@@ -18,6 +18,7 @@ pub mod operations;
 pub mod lcd;
 pub mod debugger;
 pub mod emulator;
+pub mod timer;
 
 #[cfg(test)]
 mod test_helpers;

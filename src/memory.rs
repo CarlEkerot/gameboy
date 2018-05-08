@@ -9,6 +9,7 @@ const DEFAULT_RAM: usize = 0x10000; // 64 kB
 pub struct Memory {
     size: usize,
     mem: [u8; DEFAULT_RAM],
+    pub interrupts: bool,
 }
 
 impl Memory {
@@ -17,6 +18,7 @@ impl Memory {
         Memory {
             size,
             mem: [0u8; DEFAULT_RAM],
+            interrupts: true,
         }
     }
 
@@ -50,6 +52,27 @@ impl Memory {
     pub fn is_set(&self, addr: usize, bit: usize) -> bool {
         assert!(bit < BYTE, "Attempt to read bit outside of bounds: {}", bit);
         self.mem[addr] & (1u8 << bit) != 0
+    }
+
+    pub fn set_register_flag(&mut self, reg_addr: usize, flag: u8) {
+        let current = self.load(reg_addr);
+        self.store(reg_addr, current | flag);
+    }
+
+    pub fn clear_register_flag(&mut self, reg_addr: usize, flag: u8) {
+        let current = self.load(reg_addr);
+        self.store(reg_addr, current & !flag);
+    }
+
+    pub fn set_interrupt_flag(&mut self, flag: u8) {
+        if !self.interrupts {
+            return
+        }
+        self.set_register_flag(MREG_IF, flag);
+    }
+
+    pub fn set_interrupts_enabled(&mut self, val: bool) {
+        self.interrupts = val
     }
 
     pub fn load_rom(&mut self, rom: &mut File) -> Result<usize> {

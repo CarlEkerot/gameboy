@@ -37,9 +37,9 @@ impl Execute for Increase {
             },
             Operand::RegisterPairAddr(h, l) => {
                 let addr = cpu.read_reg_addr(h, l);
-                let val = cpu.ram.load(addr);
+                let val = cpu.load_mem(addr);
                 let res = val.wrapping_add(1);
-                cpu.ram.store(addr, res);
+                cpu.store_mem(addr, res);
                 cpu.set_half_carry(val as usize, 1);
                 cpu.flag_cond(FLAG_Z, res == 0);
             },
@@ -55,10 +55,8 @@ impl Execute for Increase {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -79,8 +77,7 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[r] = 0x11;
             execute_instruction(&mut cpu, c, None);
             assert_eq!(cpu.reg[r], 0x12);
@@ -89,8 +86,7 @@ mod tests {
 
     #[test]
     fn test_inc_overflow() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0xff;
         execute_instruction(&mut cpu, 0x3c, None);
         assert_eq!(cpu.reg[REG_A], 0x00);
@@ -99,8 +95,7 @@ mod tests {
 
     #[test]
     fn test_inc_half_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x0f;
         execute_instruction(&mut cpu, 0x3c, None);
         assert_eq!(cpu.reg[REG_A], 0x10);
@@ -109,13 +104,12 @@ mod tests {
 
     #[test]
     fn test_inc_regpair_addr() {
-        let mut mem = Memory::default();
-        mem.store(0xff22, 0x11);
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
+        cpu.store_mem(0xff22, 0x11);
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;
         execute_instruction(&mut cpu, 0x34, None);
-        assert_eq!(cpu.ram.load(0xff22), 0x12);
+        assert_eq!(cpu.load_mem(0xff22), 0x12);
     }
 
     #[test]
@@ -127,8 +121,7 @@ mod tests {
         ];
 
         for &(c, h, l) in pairs.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[h] = 0xaa;
             cpu.reg[l] = 0xbb;
             execute_instruction(&mut cpu, c, None);
@@ -139,8 +132,7 @@ mod tests {
 
     #[test]
     fn test_inc_sp() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.sp = 0xaabb;
         execute_instruction(&mut cpu, 0x33, None);
         assert_eq!(cpu.sp, 0xaabc);

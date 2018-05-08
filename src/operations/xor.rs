@@ -17,7 +17,7 @@ impl Execute for Xor {
             },
             Operand::RegisterPairAddr(h, l) => {
                 let addr = cpu.read_reg_addr(h, l);
-                cpu.reg[REG_A] ^= cpu.ram.load(addr);
+                cpu.reg[REG_A] ^= cpu.load_mem(addr);
             },
             Operand::Immediate(BYTE) => {
                 cpu.reg[REG_A] ^= instruction.get_immediate_u8()?;
@@ -39,10 +39,8 @@ impl Execute for Xor {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -63,8 +61,7 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_A] = 0b0001_1100;
             if r != REG_A {
                 cpu.reg[r] = 0b0011_1000;
@@ -82,8 +79,7 @@ mod tests {
 
     #[test]
     fn test_xor_immediate_with_a() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0b0001_1100;
         execute_instruction(&mut cpu, 0xee, Some(0b0011_1000));
         assert_eq!(cpu.reg[REG_A], 0b0010_0100);
@@ -92,9 +88,8 @@ mod tests {
 
     #[test]
     fn test_xor_regpair_addr_with_a() {
-        let mut mem = Memory::default();
-        mem.store(0xff22, 0b0011_1000);
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
+        cpu.store_mem(0xff22, 0b0011_1000);
         cpu.reg[REG_A] = 0b0001_1100;
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;

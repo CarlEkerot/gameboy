@@ -29,10 +29,8 @@ impl Execute for Restart {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
 
     #[test]
     fn execute_rst() {
@@ -53,14 +51,13 @@ mod tests {
         ];
 
         for &(c, o) in rst_offset_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.pc = 0x2233;
             cpu.sp = 0x1122;
             execute_instruction(&mut cpu, c, None);
             assert_eq!(cpu.pc, o);
-            assert_eq!(cpu.ram.load(0x1121), 0x33);
-            assert_eq!(cpu.ram.load(0x1120), 0x22);
+            assert_eq!(cpu.load_mem(0x1121), 0x33);
+            assert_eq!(cpu.load_mem(0x1120), 0x22);
         }
     }
 }

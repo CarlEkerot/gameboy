@@ -21,11 +21,11 @@ impl Execute for Swap {
             },
             Operand::RegisterPairAddr(h, l) => {
                 let addr = cpu.read_reg_addr(h, l);
-                let val = cpu.ram.load(addr);
+                let val = cpu.load_mem(addr);
                 let hi = val >> 4;
                 let lo = val & 0xf;
                 let res = (lo << 4) | hi;
-                cpu.ram.store(addr, res);
+                cpu.store_mem(addr, res);
                 res
             },
             _ => {
@@ -44,10 +44,8 @@ impl Execute for Swap {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -68,8 +66,7 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[r] = 0x0f;
             execute_instruction(&mut cpu, c, None);
             assert_eq!(cpu.reg[r], 0xf0);
@@ -78,8 +75,7 @@ mod tests {
 
     #[test]
     fn test_swap_reg_zero() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x00;
         execute_instruction(&mut cpu, 0xcb37, None);
         assert_eq!(cpu.reg[REG_A], 0x00);
@@ -88,12 +84,11 @@ mod tests {
 
     #[test]
     fn test_swap_regpair_addr() {
-        let mut mem = Memory::default();
-        mem.store(0xff22, 0xf0);
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
+        cpu.store_mem(0xff22, 0xf0);
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;
         execute_instruction(&mut cpu, 0xcb36, None);
-        assert_eq!(cpu.ram.load(0xff22), 0x0f);
+        assert_eq!(cpu.load_mem(0xff22), 0x0f);
     }
 }

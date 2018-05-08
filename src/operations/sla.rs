@@ -26,11 +26,11 @@ impl Execute for ShiftLeftArithmetic {
             },
             Operand::RegisterPairAddr(h, l) => {
                 let addr = cpu.read_reg_addr(h, l);
-                let val = cpu.ram.load(addr);
+                let val = cpu.load_mem(addr);
                 let msb = val >> 7;
                 let mut res = val << 1;
 
-                cpu.ram.store(addr, res);
+                cpu.store_mem(addr, res);
 
                 cpu.flag_cond(FLAG_Z, res == 0);
                 cpu.clear_flag(FLAG_N);
@@ -49,10 +49,8 @@ impl Execute for ShiftLeftArithmetic {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -73,8 +71,7 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[r] = 0b0111_1111;
             execute_instruction(&mut cpu, c, None);
             assert_eq!(cpu.reg[r], 0b1111_1110);
@@ -95,8 +92,7 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[r] = 0b1111_1111;
             execute_instruction(&mut cpu, c, None);
             assert_eq!(cpu.reg[r], 0b1111_1110);
@@ -108,13 +104,12 @@ mod tests {
 
     #[test]
     fn test_sla_regpair_addr_no_carry() {
-        let mut mem = Memory::default();
-        mem.store(0xff22, 0b0111_1111);
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
+        cpu.store_mem(0xff22, 0b0111_1111);
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;
         execute_instruction(&mut cpu, 0xcb26, None);
-        assert_eq!(cpu.ram.load(0xff22), 0b1111_1110);
+        assert_eq!(cpu.load_mem(0xff22), 0b1111_1110);
         assert_eq!(cpu.flag, 0b0000_0000);
     }
 }

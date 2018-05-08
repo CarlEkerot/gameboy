@@ -38,10 +38,8 @@ impl Execute for Return {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -51,8 +49,7 @@ mod tests {
 
     #[test]
     fn test_ret() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.sp = 0x1122;
         cpu.stack_push(0x22);
         cpu.stack_push(0xff);
@@ -71,8 +68,7 @@ mod tests {
         ];
 
         for &(c, f, s) in flag_set_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.sp = 0x1122;
             cpu.stack_push(0x22);
             cpu.stack_push(0xff);

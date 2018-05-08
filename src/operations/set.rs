@@ -18,8 +18,8 @@ impl Execute for Set {
             },
             (&Operand::RegisterPairAddr(h, l), &Operand::Bit(b)) => {
                 let addr = cpu.read_reg_addr(h, l);
-                let val = cpu.ram.load(addr) | 1u8 << b;
-                cpu.ram.store(addr, val);
+                let val = cpu.load_mem(addr) | 1u8 << b;
+                cpu.store_mem(addr, val);
             },
             _ => {
                 // TODO: Add error here
@@ -32,9 +32,7 @@ impl Execute for Set {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::execute_instruction;
-    use cpu::CPU;
-    use memory::Memory;
+    use test_helpers::{execute_instruction, test_cpu};
     use constants::*;
 
     #[test]
@@ -51,8 +49,7 @@ mod tests {
 
         for bit in 0..8 {
             for &(c, r) in reg_codes.iter() {
-                let mut mem = Memory::default();
-                let mut cpu = CPU::new(mem);
+                let mut cpu = test_cpu();
                 execute_instruction(&mut cpu, c + 8 * bit, None);
                 assert_eq!(cpu.reg[r], 1 << bit);
             }
@@ -62,12 +59,11 @@ mod tests {
     #[test]
     fn test_set_regpair_addr() {
         for bit in 0..8 {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_H] = 0xff;
             cpu.reg[REG_L] = 0x22;
             execute_instruction(&mut cpu, 0xcbc6 + 8 * bit, None);
-            assert_eq!(cpu.ram.load(0xff22), 1 << bit);
+            assert_eq!(cpu.load_mem(0xff22), 1 << bit);
         }
     }
 }

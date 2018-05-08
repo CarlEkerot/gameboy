@@ -16,7 +16,7 @@ impl Execute for Compare {
             Operand::Register(r) => cpu.reg[r],
             Operand::RegisterPairAddr(h, l) => {
                 let addr = cpu.read_reg_addr(h, l);
-                cpu.ram.load(addr)
+                cpu.load_mem(addr)
             },
             Operand::Immediate(BYTE) => instruction.get_immediate_u8()?,
             _ => {
@@ -36,10 +36,8 @@ impl Execute for Compare {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -60,8 +58,7 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_A] = 0x7a;
             if r != REG_A {
                 cpu.reg[r] = 0x11;
@@ -77,8 +74,7 @@ mod tests {
 
     #[test]
     fn test_cp_immediate_less_than_a() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x9a;
         execute_instruction(&mut cpu, 0xfe, Some(0x11));
         assert_eq!(cpu.flag, 0b0100_0000);
@@ -86,8 +82,7 @@ mod tests {
 
     #[test]
     fn test_cp_immediate_greater_than_a() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x9a;
         execute_instruction(&mut cpu, 0xfe, Some(0xd1));
         assert_eq!(cpu.flag, 0b0101_0000);
@@ -95,9 +90,8 @@ mod tests {
 
     #[test]
     fn test_cp_regpair_addr_with_a() {
-        let mut mem = Memory::default();
-        mem.store(0xff22, 0x11);
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
+        cpu.store_mem(0xff22, 0x11);
         cpu.reg[REG_A] = 0x9a;
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;

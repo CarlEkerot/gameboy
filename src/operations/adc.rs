@@ -32,7 +32,7 @@ impl Execute for AddCarry {
             Operand::RegisterPairAddr(h, l) => {
                 let addr = cpu.read_reg_addr(h, l);
                 let a = cpu.reg[REG_A];
-                let b = cpu.ram.load(addr);
+                let b = cpu.load_mem(addr);
 
                 let mut val = a.wrapping_add(b);
 
@@ -75,10 +75,8 @@ impl Execute for AddCarry {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -106,8 +104,7 @@ mod tests {
         ];
 
         for &(c, r, carry) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_A] = 0x7a;
             if r != REG_A {
                 cpu.reg[r] = 0x11;
@@ -125,8 +122,7 @@ mod tests {
     #[test]
     fn test_adc_reg_to_a_half_carry() {
         for carry in 0..2 {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_A] = 0x08;
             cpu.reg[REG_B] = 0x09;
             cpu.flag_cond(FLAG_C, carry == 1);
@@ -139,8 +135,7 @@ mod tests {
     #[test]
     fn test_adc_reg_to_a_carry() {
         for carry in 0..2 {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_A] = 0x80;
             cpu.reg[REG_B] = 0x81;
             cpu.flag_cond(FLAG_C, carry == 1);
@@ -152,8 +147,7 @@ mod tests {
 
     #[test]
     fn test_adc_reg_to_a_zero() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x00;
         cpu.reg[REG_B] = 0x00;
         execute_instruction(&mut cpu, 0x88, None);
@@ -164,8 +158,7 @@ mod tests {
     #[test]
     fn test_adc_immediate_to_a() {
         for carry in 0..2 {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_A] = 0x9a;
             cpu.flag_cond(FLAG_C, carry == 1);
             execute_instruction(&mut cpu, 0xce, Some(0x11));
@@ -176,9 +169,8 @@ mod tests {
     #[test]
     fn test_adc_regpair_addr_to_a() {
         for carry in 0..2 {
-            let mut mem = Memory::default();
-            mem.store(0xff22, 0x11);
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
+            cpu.store_mem(0xff22, 0x11);
             cpu.reg[REG_A] = 0x9a;
             cpu.reg[REG_H] = 0xff;
             cpu.reg[REG_L] = 0x22;

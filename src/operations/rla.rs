@@ -28,10 +28,8 @@ impl Execute for RotateALeft {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -41,8 +39,7 @@ mod tests {
 
     #[test]
     fn test_rla_no_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0b0111_1111;
         execute_instruction(&mut cpu, 0x17, None);
         assert_eq!(cpu.reg[REG_A], 0b1111_1110);
@@ -51,8 +48,7 @@ mod tests {
 
     #[test]
     fn test_rla_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0b1111_1111;
         execute_instruction(&mut cpu, 0x17, None);
         assert_eq!(cpu.reg[REG_A], 0b1111_1110);

@@ -4,6 +4,8 @@ use instructions::Instruction;
 use definition::{Mnemonic, OpCode};
 use instruction_set::get_definition;
 use definition::Definition;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 fn mock_instruction(definition: &'static Definition) -> Instruction {
     Instruction {
@@ -12,9 +14,13 @@ fn mock_instruction(definition: &'static Definition) -> Instruction {
     }
 }
 
+pub fn test_cpu() -> CPU {
+    let mem = Rc::new(RefCell::new(Memory::default()));
+    CPU::new(Rc::clone(&mem))
+}
+
 pub fn execute_all(mnemonic: Mnemonic) {
-    let m = Memory::default();
-    let mut cpu = CPU::new(m);
+    let mut cpu = test_cpu();
     let itr = (0..512).map(get_definition)
         .filter(|&d| d.mnemonic == mnemonic);
     for d in itr {

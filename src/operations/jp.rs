@@ -53,10 +53,8 @@ impl Execute for Jump {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -66,8 +64,7 @@ mod tests {
 
     #[test]
     fn test_jp_immediate_addr() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         execute_instruction(&mut cpu, 0xc3, Some(0xff22));
         assert_eq!(cpu.pc, 0xff22);
     }
@@ -82,8 +79,7 @@ mod tests {
         ];
 
         for &(c, f, s) in flag_set_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.flag_cond(f, s);
             execute_instruction(&mut cpu, c, Some(0xff22));
             assert_eq!(cpu.pc, 0xff22);
@@ -92,8 +88,7 @@ mod tests {
 
     #[test]
     fn test_jp_regpair_addr() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;
         execute_instruction(&mut cpu, 0xe9, None);

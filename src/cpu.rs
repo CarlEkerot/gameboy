@@ -8,6 +8,8 @@ use interrupts::*;
 use operations::*;
 use instruction_set::get_definition;
 use std::fmt;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 #[derive(Debug, PartialEq)]
 pub enum CPUState {
@@ -21,12 +23,9 @@ pub struct CPU {
     pub sp: u16,
     pub pc: u16,
     pub flag: u8,
-    pub ram: Memory,
+    pub mem: Rc<RefCell<Memory>>,
     pub cycles: usize,
     pub state: CPUState,
-    pub interrupts: bool,
-    timer_count: usize,
-    divider_count: u8,
 }
 
 impl fmt::Debug for CPU {
@@ -43,18 +42,15 @@ SP: {:04x} PC: {:04x} Flags: {:08b}"#,
 }
 
 impl CPU {
-    pub fn new(ram: Memory) -> CPU {
+    pub fn new(mem: Rc<RefCell<Memory>>) -> CPU {
         CPU {
             reg: [0; 8],
             sp: 0,
             pc: 0,
             flag: 0,
-            ram,
+            mem,
             cycles: 0,
             state: CPUState::Running,
-            interrupts: true,
-            timer_count: 0,
-            divider_count: 0,
         }
     }
 
@@ -111,11 +107,17 @@ impl CPU {
         // NOTE: When other cycle count?
         let instruction_cycles = instruction.definition.cycles[0];
         self.cycles += instruction_cycles;
-        self.increase_timer(instruction_cycles);
-        self.increase_divider(instruction_cycles);
         self.execute_interrupts();
         self.pc = self.pc.wrapping_add(instruction.definition.length as u16);
         res
+    }
+
+    pub fn store_mem(&self, addr: usize, value: u8) {
+        self.mem.borrow_mut().store(addr, value);
+    }
+
+    pub fn load_mem(&self, addr: usize) -> u8 {
+        self.mem.borrow_mut().load(addr)
     }
 
     pub fn read_reg_addr(&self, h: usize, l: usize) -> usize {
@@ -181,26 +183,26 @@ impl CPU {
     }
 
     pub fn enable_interrupts(&mut self) {
-        self.interrupts = true;
+        self.mem.borrow_mut().set_interrupts_enabled(true);
     }
 
     pub fn disable_interrupts(&mut self) {
-        self.interrupts = false;
+        self.mem.borrow_mut().set_interrupts_enabled(false);
     }
 
     pub fn stack_push(&mut self, b: u8) {
         self.sp = self.sp.wrapping_sub(1);
-        self.ram.store(self.sp as usize, b);
+        self.store_mem(self.sp as usize, b);
     }
 
     pub fn stack_pop(&mut self) -> u8 {
-        let val = self.ram.load(self.sp as usize);
+        let val = self.load_mem(self.sp as usize);
         self.sp = self.sp.wrapping_add(1);
         val
     }
 
     fn next_instruction_byte(&self, offset: &mut usize) -> u8 {
-        let b = self.ram.load((self.pc as usize) + *offset);
+        let b = self.load_mem((self.pc as usize) + *offset);
         *offset += 1;
         b
     }
@@ -239,32 +241,15 @@ impl CPU {
         instruction
     }
 
-    pub fn set_register_flag(&mut self, reg_addr: usize, flag: u8) {
-        let current = self.ram.load(reg_addr);
-        self.ram.store(reg_addr, current | flag);
-    }
-
-    pub fn clear_register_flag(&mut self, reg_addr: usize, flag: u8) {
-        let current = self.ram.load(reg_addr);
-        self.ram.store(reg_addr, current & !flag);
-    }
-
-    pub fn set_interrupt_flag(&mut self, flag: u8) {
-        if !self.interrupts {
-            return
-        }
-        self.set_register_flag(MREG_IF, flag);
-    }
-
     fn execute_interrupts(&mut self) {
         // Iterate all interrupt flags
         for interrupt in &INTERRUPTS {
-            let requested = self.ram.load(MREG_IF) & interrupt.flag != 0;
-            let enabled = self.ram.load(MREG_IE) & interrupt.flag != 0;
+            let requested = self.load_mem(MREG_IF) & interrupt.flag != 0;
+            let enabled = self.load_mem(MREG_IE) & interrupt.flag != 0;
 
             if requested && enabled {
                 // Clear the interrupt
-                self.clear_register_flag(MREG_IF, interrupt.flag);
+                self.mem.borrow_mut().clear_register_flag(MREG_IF, interrupt.flag);
 
                 // Disable further interrupts
                 self.disable_interrupts();
@@ -272,44 +257,6 @@ impl CPU {
                 // Execute interrupt
                 self.pc = interrupt.handler_addr as u16;
             }
-        }
-    }
-
-    pub fn increase_timer(&mut self, cycles: usize) {
-        // Load current divider
-        let tac = self.ram.load(MREG_TAC);
-
-        // If timer not enabled, do nothing
-        if (tac & 0b100) == 0 {
-            return
-        }
-
-        let cycles_per_tick = TIMER_CYCLES_PER_TICK[(tac & 0b11) as usize];
-
-        let prev_count = self.ram.load(MREG_TIMA);
-        self.timer_count += cycles;
-        if self.timer_count >= cycles_per_tick {
-            let count = prev_count.wrapping_add(1);
-            self.ram.store(MREG_TIMA, count);
-            self.timer_count %= cycles_per_tick;
-
-            if count < prev_count {
-                // Set overflow
-                self.set_interrupt_flag(INTERRUPT_TIMER.flag);
-
-                // Set contents of TIMA to that of TMA
-                let tma = self.ram.load(MREG_TMA);
-                self.ram.store(MREG_TIMA, tma);
-            }
-        }
-    }
-
-    pub fn increase_divider(&mut self, cycles: usize) {
-        let prev_count = self.divider_count;
-        self.divider_count =  self.divider_count.wrapping_add(cycles as u8);
-        if self.divider_count < prev_count {
-            let div = self.ram.load(MREG_DIV);
-            self.ram.store(MREG_DIV, div.wrapping_add(1));
         }
     }
 
@@ -321,7 +268,7 @@ impl CPU {
         self.cycles = 0;
         self.state = CPUState::Running;
         self.enable_interrupts();
-        self.ram.clear()
+        self.mem.borrow_mut().clear();
     }
 }
 
@@ -334,10 +281,10 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let mut mem = Memory::default();
-        mem.store(0x100, 0xaf);
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        mem.borrow_mut().store(0x100, 0xaf);
 
-        let cpu = CPU::new(mem);
+        let cpu = CPU::new(Rc::clone(&mem));
         let instruction = cpu.current_instruction().unwrap();
 
         assert_eq!(instruction.definition.mnemonic, Mnemonic::XOR);
@@ -346,12 +293,12 @@ mod tests {
 
     #[test]
     fn test_parse_with_immediate() {
-        let mut mem = Memory::default();
-        mem.store(0x100, 0x31);
-        mem.store(0x101, 0xfe);
-        mem.store(0x102, 0xff);
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        mem.borrow_mut().store(0x100, 0x31);
+        mem.borrow_mut().store(0x101, 0xfe);
+        mem.borrow_mut().store(0x102, 0xff);
 
-        let cpu = CPU::new(mem);
+        let cpu = CPU::new(Rc::clone(&mem));
         let instruction = cpu.current_instruction().unwrap();
 
         assert_eq!(instruction.definition.mnemonic, Mnemonic::LD);
@@ -362,12 +309,12 @@ mod tests {
 
     #[test]
     fn test_parse_rom() {
-        let mut mem = Memory::default();
+        let mem = Rc::new(RefCell::new(Memory::default()));
         let mut rom = File::open("/home/kalle/temp/boot.gb").unwrap();
-        let bytes_read = mem.load_rom(&mut rom).unwrap();
+        let bytes_read = mem.borrow_mut().load_rom(&mut rom).unwrap();
         assert_eq!(bytes_read, 256);
 
-        let mut cpu = CPU::new(mem);
+        let mut cpu = CPU::new(Rc::clone(&mem));
 
         let expected = [
             "LD SP, $fffe",
@@ -386,71 +333,73 @@ mod tests {
 
     #[test]
     fn test_stack() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        let mut cpu = CPU::new(Rc::clone(&mem));
         cpu.sp = 0x1122;
         cpu.stack_push(0x12);
         let res = cpu.stack_pop();
         assert_eq!(res, 0x12);
     }
 
+    /*
     #[test]
     fn test_timer() {
         for i in 0..TIMER_CYCLES_PER_TICK.len() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mem = Rc::new(RefCell::new(Memory::default()));
+            let mut cpu = CPU::new(Rc::clone(&mem));
 
             let cycles = TIMER_CYCLES_PER_TICK[i];
             let flag = (0b100 | i) as u8;
-            cpu.ram.store(MREG_TAC, flag);
+            mem.borrow_mut().store(MREG_TAC, flag);
 
             for _ in 0..(CLOCK_SPEED - 1) {
                 cpu.increase_timer(1)
             }
 
-            assert_eq!(cpu.ram.load(MREG_TIMA), 255);
+            assert_eq!(mem.borrow().load(MREG_TIMA), 255);
             assert_eq!(cpu.timer_count, cycles - 1);
         }
     }
 
     #[test]
     fn test_timer_overflow() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        let mut cpu = CPU::new(Rc::clone(&mem));
         let overflow_ticks = 256 * TIMER_CYCLES_PER_TICK[0];
-        cpu.ram.store(MREG_TAC, 0b100);
+        mem.borrow_mut().store(MREG_TAC, 0b100);
         for _ in 0..overflow_ticks {
             cpu.increase_timer(1)
         }
 
         let flag = INTERRUPT_TIMER.flag;
-        let reg_value = cpu.ram.load(MREG_IF);
+        let reg_value = mem.borrow().load(MREG_IF);
         assert_ne!(reg_value & flag, 0);
     }
 
     #[test]
     fn test_divider() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        let mut cpu = CPU::new(Rc::clone(&mem));
 
         for _ in 0..(256 * 10) {
             cpu.increase_divider(1)
         }
 
-        let div = cpu.ram.load(MREG_DIV);
+        let div = mem.borrow().load(MREG_DIV);
         assert_eq!(div, 10);
     }
 
     #[test]
     fn test_divider_overflow() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        let mut cpu = CPU::new(Rc::clone(&mem));
 
         for _ in 0..(256 * 257) {
             cpu.increase_divider(1)
         }
 
-        let div = cpu.ram.load(MREG_DIV);
+        let div = mem.borrow().load(MREG_DIV);
         assert_eq!(div, 1);
     }
+    */
 }

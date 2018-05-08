@@ -18,8 +18,8 @@ impl Execute for Reset {
             },
             (&Operand::RegisterPairAddr(h, l), &Operand::Bit(b)) => {
                 let addr = cpu.read_reg_addr(h, l);
-                let val = cpu.ram.load(addr) & !(1u8 << b);
-                cpu.ram.store(addr, val);
+                let val = cpu.load_mem(addr) & !(1u8 << b);
+                cpu.store_mem(addr, val);
             },
             _ => {
                 // TODO: Add error here
@@ -32,10 +32,8 @@ impl Execute for Reset {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -57,8 +55,7 @@ mod tests {
 
         for bit in 0..8 {
             for &(c, r) in reg_codes.iter() {
-                let mut mem = Memory::default();
-                let mut cpu = CPU::new(mem);
+                let mut cpu = test_cpu();
                 cpu.reg[r] = 1 << bit;
                 execute_instruction(&mut cpu, c + 8 * bit, None);
                 assert_eq!(cpu.reg[r], 0);
@@ -69,13 +66,12 @@ mod tests {
     #[test]
     fn test_res_regpair_addr() {
         for bit in 0..8 {
-            let mut mem = Memory::default();
-            mem.store(0xff22, 1u8 << bit);
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
+            cpu.store_mem(0xff22, 1u8 << bit);
             cpu.reg[REG_H] = 0xff;
             cpu.reg[REG_L] = 0x22;
             execute_instruction(&mut cpu, 0xcb86 + 8 * bit, None);
-            assert_eq!(cpu.ram.load(0xff22), 0);
+            assert_eq!(cpu.load_mem(0xff22), 0);
         }
     }
 }

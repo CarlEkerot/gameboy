@@ -28,10 +28,8 @@ impl Execute for Push {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -49,14 +47,13 @@ mod tests {
         ];
 
         for &(c, h, l) in pairs.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.sp = 0xff22;
             cpu.reg[h] = 0xaa;
             cpu.reg[l] = 0xbb;
             execute_instruction(&mut cpu, c, None);
-            assert_eq!(cpu.ram.load(0xff21), 0xbb);
-            assert_eq!(cpu.ram.load(0xff20), 0xaa);
+            assert_eq!(cpu.load_mem(0xff21), 0xbb);
+            assert_eq!(cpu.load_mem(0xff20), 0xaa);
             assert_eq!(cpu.sp, 0xff20);
         }
     }

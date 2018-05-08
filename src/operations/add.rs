@@ -27,7 +27,7 @@ impl Execute for Add {
             (&Operand::Register(r), &Operand::RegisterPairAddr(h, l)) => {
                 let op1 = cpu.reg[r];
                 let addr = cpu.read_reg_addr(h, l);
-                let op2 = cpu.ram.load(addr);
+                let op2 = cpu.load_mem(addr);
                 let val = op1.wrapping_add(op2);
                 cpu.reg[r] = val;
 
@@ -87,10 +87,8 @@ impl Execute for Add {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -111,8 +109,7 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_A] = 0x7a;
             if r != REG_A {
                 cpu.reg[r] = 0x11;
@@ -128,8 +125,7 @@ mod tests {
 
     #[test]
     fn test_add_reg_to_a_half_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x08;
         cpu.reg[REG_B] = 0x09;
         execute_instruction(&mut cpu, 0x80, None);
@@ -139,8 +135,7 @@ mod tests {
 
     #[test]
     fn test_add_reg_to_a_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x80;
         cpu.reg[REG_B] = 0x81;
         execute_instruction(&mut cpu, 0x80, None);
@@ -150,8 +145,7 @@ mod tests {
 
     #[test]
     fn test_add_reg_to_a_zero() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x00;
         cpu.reg[REG_B] = 0x00;
         execute_instruction(&mut cpu, 0x80, None);
@@ -161,8 +155,7 @@ mod tests {
 
     #[test]
     fn test_add_immediate_to_a() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x9a;
         execute_instruction(&mut cpu, 0xc6, Some(0x11));
         assert_eq!(cpu.reg[REG_A], 0xab);
@@ -170,9 +163,8 @@ mod tests {
 
     #[test]
     fn test_add_regpair_addr_to_a() {
-        let mut mem = Memory::default();
-        mem.store(0xff22, 0x11);
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
+        cpu.store_mem(0xff22, 0x11);
         cpu.reg[REG_A] = 0x9a;
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;
@@ -189,8 +181,7 @@ mod tests {
         ];
 
         for &(c, h, l) in pairs.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_H] = 0x01;
             cpu.reg[REG_L] = 0x02;
             if h != REG_H {
@@ -210,8 +201,7 @@ mod tests {
 
     #[test]
     fn test_add_regpair_to_hl_half_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_H] = 0x08;
         cpu.reg[REG_L] = 0x02;
         cpu.reg[REG_B] = 0x09;
@@ -224,8 +214,7 @@ mod tests {
 
     #[test]
     fn test_add_regpair_to_hl_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_H] = 0x80;
         cpu.reg[REG_L] = 0x02;
         cpu.reg[REG_B] = 0x81;
@@ -238,8 +227,7 @@ mod tests {
 
     #[test]
     fn test_add_sp_to_hl() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_H] = 0x01;
         cpu.reg[REG_L] = 0x02;
         cpu.sp = 0x03;

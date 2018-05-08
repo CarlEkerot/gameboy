@@ -17,10 +17,8 @@ impl Execute for SetCarryFlag {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -30,16 +28,14 @@ mod tests {
 
     #[test]
     fn test_scf_no_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         execute_instruction(&mut cpu, 0x37, None);
         assert_eq!(cpu.flag, 0b0001_0000);
     }
 
     #[test]
     fn test_scf_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.set_flag(FLAG_C);
         execute_instruction(&mut cpu, 0x37, None);
         assert_eq!(cpu.flag, 0b0001_0000);

@@ -26,10 +26,8 @@ impl Execute for Pop {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -47,10 +45,9 @@ mod tests {
         ];
 
         for &(c, h, l) in pairs.iter() {
-            let mut mem = Memory::default();
-            mem.store(0xff22, 0xaa);
-            mem.store(0xff23, 0xbb);
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
+            cpu.store_mem(0xff22, 0xaa);
+            cpu.store_mem(0xff23, 0xbb);
             cpu.sp = 0xff22;
             execute_instruction(&mut cpu, c, None);
             assert_eq!(cpu.reg[h], 0xaa);

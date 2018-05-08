@@ -37,10 +37,8 @@ impl Execute for DecimalAdjustA {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -50,8 +48,7 @@ mod tests {
 
     #[test]
     fn test_daa_adjusted() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0b1010_0111;
         execute_instruction(&mut cpu, 0x27, None);
         assert_eq!(cpu.reg[REG_A], 0b1010_0111);
@@ -60,8 +57,7 @@ mod tests {
 
     #[test]
     fn test_daa_low() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0b0000_1111;
         execute_instruction(&mut cpu, 0x27, None);
         assert_eq!(cpu.reg[REG_A], 0b0001_0101);
@@ -70,8 +66,7 @@ mod tests {
 
     #[test]
     fn test_daa_high() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0b1010_1010;
         execute_instruction(&mut cpu, 0x27, None);
         assert_eq!(cpu.reg[REG_A], 0b0001_0000);

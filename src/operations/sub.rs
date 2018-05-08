@@ -28,7 +28,7 @@ impl Execute for Subtract {
             Operand::RegisterPairAddr(h, l) => {
                 let addr = cpu.read_reg_addr(h, l);
                 let a = cpu.reg[REG_A];
-                let b = cpu.ram.load(addr);
+                let b = cpu.load_mem(addr);
 
                 let val = a.wrapping_sub(b);
                 cpu.reg[REG_A] = val;
@@ -62,10 +62,8 @@ impl Execute for Subtract {
 
 #[cfg(test)]
 mod tests {
-    use test_helpers::{execute_all, execute_instruction};
+    use test_helpers::{execute_all, execute_instruction, test_cpu};
     use definition::Mnemonic;
-    use cpu::CPU;
-    use memory::Memory;
     use constants::*;
 
     #[test]
@@ -86,8 +84,7 @@ mod tests {
         ];
 
         for &(c, r) in reg_codes.iter() {
-            let mut mem = Memory::default();
-            let mut cpu = CPU::new(mem);
+            let mut cpu = test_cpu();
             cpu.reg[REG_A] = 0x7a;
             if r != REG_A {
                 cpu.reg[r] = 0x11;
@@ -103,8 +100,7 @@ mod tests {
 
     #[test]
     fn test_sub_reg_from_a_half_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x7f;
         cpu.reg[REG_B] = 0x01;
         execute_instruction(&mut cpu, 0x90, None);
@@ -114,8 +110,7 @@ mod tests {
 
     #[test]
     fn test_sub_reg_from_a_carry() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x80;
         cpu.reg[REG_B] = 0x81;
         execute_instruction(&mut cpu, 0x90, None);
@@ -125,8 +120,7 @@ mod tests {
 
     #[test]
     fn test_sub_reg_from_a_zero() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x00;
         cpu.reg[REG_B] = 0x00;
         execute_instruction(&mut cpu, 0x90, None);
@@ -136,8 +130,7 @@ mod tests {
 
     #[test]
     fn test_sub_immediate_from_a() {
-        let mem = Memory::default();
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
         cpu.reg[REG_A] = 0x9a;
         execute_instruction(&mut cpu, 0xd6, Some(0x11));
         assert_eq!(cpu.reg[REG_A], 0x89);
@@ -145,9 +138,8 @@ mod tests {
 
     #[test]
     fn test_sub_regpair_addr_from_a() {
-        let mut mem = Memory::default();
-        mem.store(0xff22, 0x11);
-        let mut cpu = CPU::new(mem);
+        let mut cpu = test_cpu();
+        cpu.store_mem(0xff22, 0x11);
         cpu.reg[REG_A] = 0x9a;
         cpu.reg[REG_H] = 0xff;
         cpu.reg[REG_L] = 0x22;
