@@ -19,7 +19,6 @@ impl Timer {
         }
     }
 
-    // Returns true if overflow
     fn increase_timer(&mut self, cycles: usize) {
         // Load current divider
         let mut mem = self.mem.borrow_mut();
@@ -56,12 +55,80 @@ impl Timer {
         if self.divider_count < prev_count {
             let mut mem = self.mem.borrow_mut();
             let div = mem.load(MREG_DIV);
-            mem.store(MREG_DIV, div.wrapping_add(1));
+            mem.store_unchecked(MREG_DIV, div.wrapping_add(1));
         }
     }
 
     pub fn increase(&mut self, cycles: usize) {
         self.increase_timer(cycles);
         self.increase_divider(cycles);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use cpu::CPU;
+    use test_helpers::test_cpu;
+
+    #[test]
+    fn test_timer() {
+        for i in 0..TIMER_CYCLES_PER_TICK.len() {
+            let mem = Rc::new(RefCell::new(Memory::default()));
+            let flag = (0b100 | i) as u8;
+            mem.borrow_mut().store(MREG_TAC, flag);
+
+            let mut timer = Timer::new(Rc::clone(&mem));
+
+            let cycles = TIMER_CYCLES_PER_TICK[i];
+
+            for _ in 0..(CLOCK_SPEED - 1) {
+                timer.increase(1);
+            }
+
+            assert_eq!(mem.borrow().load(MREG_TIMA), 255);
+            assert_eq!(timer.timer_count, cycles - 1);
+        }
+    }
+
+    #[test]
+    fn test_timer_overflow() {
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        let mut timer = Timer::new(Rc::clone(&mem));
+        let overflow_ticks = 256 * TIMER_CYCLES_PER_TICK[0];
+        mem.borrow_mut().store(MREG_TAC, 0b100);
+        for _ in 0..overflow_ticks {
+            timer.increase(1);
+        }
+
+        let flag = INTERRUPT_TIMER.flag;
+        let reg_value = mem.borrow().load(MREG_IF);
+        assert_ne!(reg_value & flag, 0);
+    }
+
+    #[test]
+    fn test_divider() {
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        let mut timer = Timer::new(Rc::clone(&mem));
+
+        for _ in 0..(256 * 10) {
+            timer.increase_divider(1);
+        }
+
+        let div = mem.borrow().load(MREG_DIV);
+        assert_eq!(div, 10);
+    }
+
+    #[test]
+    fn test_divider_overflow() {
+        let mem = Rc::new(RefCell::new(Memory::default()));
+        let mut timer = Timer::new(Rc::clone(&mem));
+
+        for _ in 0..(256 * 257) {
+            timer.increase_divider(1);
+        }
+
+        let div = mem.borrow().load(MREG_DIV);
+        assert_eq!(div, 1);
     }
 }

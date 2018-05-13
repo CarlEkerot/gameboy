@@ -32,10 +32,18 @@ impl Memory {
         };
     }
 
+    pub fn store_unchecked(&mut self, addr: usize, value: u8) {
+        self.mem[addr] = value;
+    }
+
     pub fn load(&self, addr: usize) -> u8 {
         assert!(addr < self.size,
                 "Attempt to load outside of memory bound. {:04x} > {:04x}",
                 addr, self.size);
+        self.mem[addr]
+    }
+
+    pub fn load_unchecked(&self, addr: usize) -> u8 {
         self.mem[addr]
     }
 
