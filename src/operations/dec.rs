@@ -16,13 +16,13 @@ impl Execute for Decrease {
                 let val = cpu.reg[r];
                 let res = val.wrapping_sub(1);
                 cpu.reg[r] = res;
-                cpu.set_half_carry(val as usize, 1);
+                cpu.set_half_carry(res as usize, 1);
                 cpu.flag_cond(FLAG_Z, res == 0);
             },
             Operand::RegisterPair(h, l) => {
                 let val = cpu.read_reg_short(h, l);
                 let res = val.wrapping_sub(1);
-                cpu.store_reg_short(h, l, val);
+                cpu.store_reg_short(h, l, res);
 
                 // Make sure we calculate carry on high byte
                 cpu.set_half_carry((val >> 8) as usize, 1);
@@ -90,7 +90,7 @@ mod tests {
         cpu.reg[REG_A] = 0x00;
         execute_instruction(&mut cpu, 0x3d, None);
         assert_eq!(cpu.reg[REG_A], 0xff);
-        assert_eq!(cpu.flag, 0b0000_0000);
+        assert_eq!(cpu.flag, 0b0010_0000);
     }
 
     #[test]

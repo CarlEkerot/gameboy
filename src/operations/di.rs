@@ -22,12 +22,11 @@ mod tests {
         execute_all(Mnemonic::DI);
     }
 
-    /*
     #[test]
     fn test_disable_interrupts() {
         let mut cpu = test_cpu();
         execute_instruction(&mut cpu, 0xf3, None);
-        assert_eq!(cpu.mem.borrow().interrupts, false)
+        let mem = cpu.mem.borrow();
+        assert_eq!(mem.interrupts, false)
     }
-    */
 }

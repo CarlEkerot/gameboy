@@ -22,14 +22,12 @@ mod tests {
         execute_all(Mnemonic::EI);
     }
 
-    /*
     #[test]
     fn test_enable_interrupts() {
         let mut cpu = test_cpu();
-        let mut mem = cpu.mem.borrow_mut();
-        mem.set_interrupts_enabled(false);
+        cpu.disable_interrupts();
         execute_instruction(&mut cpu, 0xfb, None);
-        assert_eq!(mem.interrupts, true)
+        let mem = cpu.mem.borrow();
+        assert_eq!(mem.interrupts, true);
     }
-    */
 }

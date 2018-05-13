@@ -284,7 +284,8 @@ mod tests {
         let mem = Rc::new(RefCell::new(Memory::default()));
         mem.borrow_mut().store(0x100, 0xaf);
 
-        let cpu = CPU::new(Rc::clone(&mem));
+        let mut cpu = CPU::new(Rc::clone(&mem));
+        cpu.pc = 0x100;
         let instruction = cpu.current_instruction().unwrap();
 
         assert_eq!(instruction.definition.mnemonic, Mnemonic::XOR);
@@ -298,7 +299,8 @@ mod tests {
         mem.borrow_mut().store(0x101, 0xfe);
         mem.borrow_mut().store(0x102, 0xff);
 
-        let cpu = CPU::new(Rc::clone(&mem));
+        let mut cpu = CPU::new(Rc::clone(&mem));
+        cpu.pc = 0x100;
         let instruction = cpu.current_instruction().unwrap();
 
         assert_eq!(instruction.definition.mnemonic, Mnemonic::LD);

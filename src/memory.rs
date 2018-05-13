@@ -55,13 +55,11 @@ impl Memory {
     }
 
     pub fn set_register_flag(&mut self, reg_addr: usize, flag: u8) {
-        let current = self.load(reg_addr);
-        self.store(reg_addr, current | flag);
+        self.mem[reg_addr] |= flag;
     }
 
     pub fn clear_register_flag(&mut self, reg_addr: usize, flag: u8) {
-        let current = self.load(reg_addr);
-        self.store(reg_addr, current & !flag);
+        self.mem[reg_addr] &= !flag;
     }
 
     pub fn set_interrupt_flag(&mut self, flag: u8) {

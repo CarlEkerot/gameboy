@@ -29,11 +29,9 @@ mod tests {
         execute_all(Mnemonic::RETI);
     }
 
-    /*
     #[test]
     fn test_ret() {
         let mut cpu = test_cpu();
-        let mut mem = cpu.mem.borrow();
         cpu.sp = 0x1122;
         cpu.disable_interrupts();
         cpu.stack_push(0x22);
@@ -41,7 +39,7 @@ mod tests {
         execute_instruction(&mut cpu, 0xd9, None);
         assert_eq!(cpu.pc, 0xff22);
         assert_eq!(cpu.sp, 0x1122);
+        let mem = cpu.mem.borrow();
         assert_eq!(mem.interrupts, true);
     }
-    */
 }
