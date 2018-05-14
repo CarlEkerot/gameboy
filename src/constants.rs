@@ -111,3 +111,15 @@ pub const TIMER_CYCLES_PER_TICK: [usize; 4] = [
     64,
     256,
 ];
+
+pub const LCD_MODE0_FLAG: u8 = 0b00;
+pub const LCD_MODE1_FLAG: u8 = 0b01;
+pub const LCD_MODE2_FLAG: u8 = 0b10;
+pub const LCD_MODE3_FLAG: u8 = 0b11;
+
+pub const LCD_MODE0_CYCLES: usize = 204;
+pub const LCD_MODE1_CYCLES: usize = 4560;
+pub const LCD_MODE2_CYCLES: usize = 80;
+pub const LCD_MODE3_CYCLES: usize = 172;
+
+pub const LY_MAX: usize = 154;

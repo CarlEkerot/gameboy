@@ -28,6 +28,7 @@ impl Memory {
                 addr, self.size);
         self.mem[addr] = match addr {
             MREG_DIV => 0,
+            MREG_LY => 0,
             _ => value,
         };
     }
